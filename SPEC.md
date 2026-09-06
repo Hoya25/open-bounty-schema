@@ -6,6 +6,10 @@ This schema defines that form. It is deliberately small, program-agnostic, and f
 
 License: CC0-1.0. No owner, no gatekeeper. Reference implementation and index: the NCTR Alliance Registry (api.nctr.live).
 
+The machine-readable schema is served at **`https://api.nctr.live/schema/bounty/v1.json`**
+(stable alias, tracks the latest 0.x) and **`https://api.nctr.live/schema/bounty/v0.2.json`**
+(pinned). Implementations should pin an exact version; agents may follow the alias.
+
 **v0.2** — discovery order and link-element fallback added to §4; v0.1 objects remain valid;
 agents must accept both. The object itself is unchanged, so nothing published under v0.1 needs
 reissuing and the JSON Schema is unmodified. What changed is where an agent must look.

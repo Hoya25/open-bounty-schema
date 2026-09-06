@@ -1,17 +1,25 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/Hoya25/open-bounty-schema/main/schema/bounty.schema.json",
+  "$id": "https://api.nctr.live/schema/bounty/v1.json",
   "title": "Open Bounty Schema",
   "description": "Describes value paid to the shopper at the purchase. One object answers: does buying here pay the shopper?",
   "type": "object",
-  "required": ["bounty_schema_version", "active", "program", "earn", "updated_at"],
+  "required": [
+    "bounty_schema_version",
+    "active",
+    "program",
+    "earn",
+    "updated_at"
+  ],
   "additionalProperties": false,
   "properties": {
     "bounty_schema_version": {
       "type": "string",
       "description": "Spec version this object conforms to.",
       "pattern": "^[0-9]+\\.[0-9]+$",
-      "examples": ["0.1"]
+      "examples": [
+        "0.1"
+      ]
     },
     "active": {
       "type": "boolean",
@@ -20,16 +28,27 @@
     "program": {
       "type": "object",
       "description": "The rewards program behind the bounty.",
-      "required": ["name", "url"],
+      "required": [
+        "name",
+        "url"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "url": { "type": "string", "format": "uri" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     },
     "earn": {
       "type": "object",
-      "required": ["display"],
+      "required": [
+        "display"
+      ],
       "additionalProperties": false,
       "properties": {
         "display": {
@@ -41,11 +60,20 @@
         "denomination": {
           "type": "string",
           "description": "What the earn is paid in.",
-          "examples": ["NCTR", "points", "USD"]
+          "examples": [
+            "NCTR",
+            "points",
+            "USD"
+          ]
         },
         "type": {
           "type": "string",
-          "enum": ["points", "token", "cash", "other"]
+          "enum": [
+            "points",
+            "token",
+            "cash",
+            "other"
+          ]
         }
       }
     },
@@ -54,8 +82,14 @@
       "description": "For status-based programs: where standing lives and what it does.",
       "additionalProperties": false,
       "properties": {
-        "url": { "type": "string", "format": "uri" },
-        "note": { "type": "string", "maxLength": 200 }
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 200
+        }
       }
     },
     "api": {
@@ -63,7 +97,10 @@
       "format": "uri",
       "description": "Live endpoint with authoritative, current bounty detail. Authoritative over any embedded copy."
     },
-    "terms_url": { "type": "string", "format": "uri" },
+    "terms_url": {
+      "type": "string",
+      "format": "uri"
+    },
     "updated_at": {
       "type": "string",
       "format": "date",
