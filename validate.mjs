@@ -55,5 +55,30 @@ for (const [label, doc] of mustReject) {
   }
 }
 
+// v0.2 added a discovery order, not a field. Objects published under v0.1 stay
+// valid and agents must accept both, so the schema must too. The example set is
+// deliberately mixed — nctr-alliance is 0.2, the rest are 0.1 — so this is
+// proven by the files above as well as asserted here.
+const base = JSON.parse(readFileSync(join(dir, 'minimal.json'), 'utf8'));
+for (const version of ['0.1', '0.2']) {
+  if (validate({ ...base, bounty_schema_version: version })) {
+    console.log(`  PASS  accepts bounty_schema_version ${version}`);
+  } else {
+    failed++;
+    console.log(`  FAIL  rejected bounty_schema_version ${version}`);
+  }
+}
+
+const versions = new Set(
+  readdirSync(dir).filter((f) => f.endsWith('.json'))
+    .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')).bounty_schema_version)
+);
+if (versions.has('0.1') && versions.has('0.2')) {
+  console.log('  PASS  example set covers both published versions');
+} else {
+  failed++;
+  console.log(`  FAIL  examples cover only ${[...versions].join(', ')}`);
+}
+
 console.log(failed ? `\n${failed} failure(s)` : '\nAll checks passed.');
 process.exit(failed ? 1 : 0);

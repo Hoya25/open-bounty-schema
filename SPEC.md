@@ -1,10 +1,14 @@
-# Open Bounty Schema — v0.1 (Draft)
+# Open Bounty Schema — v0.2 (Draft)
 
 **A bounty is value paid to the shopper at the purchase.** Discounts lower the price. Reviews describe the product. A bounty pays the buyer — in points, tokens, credit, or cash — and until now there has been no standard way for a store to say so in a form software can read.
 
 This schema defines that form. It is deliberately small, program-agnostic, and free: any rewards program, on any platform, can describe its bounty with it, and any agent can parse an answer to one question — **"does buying here pay the shopper?"**
 
 License: CC0-1.0. No owner, no gatekeeper. Reference implementation and index: the NCTR Alliance Registry (api.nctr.live).
+
+**v0.2** — discovery order and link-element fallback added to §4; v0.1 objects remain valid;
+agents must accept both. The object itself is unchanged, so nothing published under v0.1 needs
+reissuing and the JSON Schema is unmodified. What changed is where an agent must look.
 
 ---
 
@@ -57,6 +61,20 @@ Design principles: **display over math** (a truthful sentence beats a rate field
 The same object travels four ways, so every kind of agent finds it:
 
 **a. `/.well-known/bounty.json`** — the robots.txt of rewards. Host the object at this path on the store's domain. One fetch answers the question for any agent, on any platform.
+
+Some platforms do not let a store serve arbitrary root paths. Shopify is the significant case: app proxies are limited to the prefixes `a`, `apps`, `community` and `tools`, so `/.well-known/` cannot be served by an app at all.
+
+Where the root path is unavailable, publish the object at **any URL you control** and declare it in the site's `<head>`:
+
+```html
+<link rel="bounty" type="application/json" href="/apps/bounty/bounty.json">
+```
+
+`rel="bounty"` is the discovery mechanism, not the path. The path may be anything — an app proxy route, an ordinary page, a URL on another host. Agents find the object by following the link, exactly as they follow `rel="canonical"` or an RSS `rel="alternate"`. Every platform that blocks root paths still allows head markup, which is why this works where a fixed alternate path would not.
+
+**`/.well-known/bounty.json` remains canonical.** Publish there when you can. The link element is for when the platform forbids it — not a matter of preference, and not a second-class location: an object found either way is the same object and carries the same weight.
+
+On Shopify specifically, `/apps/bounty/bounty.json` is the conventional path, and the same theme app embed that renders the JSON-LD in carrier (c) emits the link element.
 
 **b. Shopify metafields** — namespace `bounty`, one metafield per field:
 
@@ -118,7 +136,15 @@ embedded copy.
 
 ## 4. Conformance for agents
 
-An agent conforms if it: fetches `/.well-known/bounty.json` when evaluating a merchant; treats a missing file as "unknown", not "no"; shows `earn.display` without embellishment; and follows `api` for live detail when present.
+An agent conforms if it resolves the object in this order, stopping at the first hit:
+
+1. `GET /.well-known/bounty.json` on the store's domain.
+2. If that 404s, look for `<link rel="bounty">` in the `<head>` of the store's home page and fetch its `href`.
+3. If neither resolves, treat the store as **unknown** — never as "no". A store that has not published is not a store that does not pay.
+
+Having resolved the object, an agent conforms if it shows `earn.display` without embellishment, and follows `api` for live detail when present.
+
+An agent that checks only step 1 is not conforming. On platforms that forbid root paths this would report "unknown" for every store that has correctly published, which is precisely the failure mode this section exists to prevent.
 
 ## 5. Governance
 

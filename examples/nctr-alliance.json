@@ -1,12 +1,12 @@
 {
-  "bounty_schema_version": "0.1",
+  "bounty_schema_version": "0.2",
   "active": true,
   "program": {
     "name": "NCTR Alliance",
     "url": "https://themall.nctr.live"
   },
   "earn": {
-    "display": "Members earn NCTR on every purchase — earning grows with status.",
+    "display": "Members earn NCTR on every purchase \u2014 earning grows with status.",
     "denomination": "NCTR",
     "type": "token"
   },

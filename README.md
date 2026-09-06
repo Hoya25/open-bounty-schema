@@ -31,9 +31,17 @@ License: **CC0-1.0**. No owner, no gatekeeper, no membership. Copy it, fork it, 
 }
 ```
 
-Host it at **`/.well-known/bounty.json`** on your store's domain. That is the whole adoption cost.
+Host it at **`/.well-known/bounty.json`** on your store's domain. On most platforms that is the whole adoption cost.
 
-Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`, and a plain catalog sentence — are described in [the spec](SPEC.md), so the same object reaches agents that never fetch a well-known path.
+Some platforms will not serve arbitrary root paths — Shopify is the significant case, where app proxies are restricted to four fixed prefixes and `/.well-known/` is not among them. There, publish the object at any URL you control and point to it from the page head:
+
+```html
+<link rel="bounty" type="application/json" href="/apps/bounty/bounty.json">
+```
+
+Agents resolve the well-known path first and fall back to the link element, so both routes reach the same object. A store that has published neither is **unknown**, never "no".
+
+Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`, and a plain catalog sentence — are described in [the spec](SPEC.md), so the same object reaches agents that never fetch a file at all.
 
 ## Design principles
 
@@ -45,7 +53,7 @@ Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`,
 
 | Path | What it is |
 |---|---|
-| [`SPEC.md`](SPEC.md) | The specification. Canonical. |
+| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.2**. |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. |
 | [`examples/`](examples/) | Valid objects: a token program, a cash program, the minimum required fields, and an inactive store. |
 | [`validate.mjs`](validate.mjs) | Validates every example, and asserts the schema **rejects** malformed objects. `npm install && npm test` |
