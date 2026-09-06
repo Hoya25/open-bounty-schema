@@ -1,0 +1,12 @@
+{
+  "bounty_schema_version": "0.1",
+  "active": false,
+  "program": {
+    "name": "Example Rewards",
+    "url": "https://example.com/rewards"
+  },
+  "earn": {
+    "display": "No bounty is offered on this store today."
+  },
+  "updated_at": "2026-09-06"
+}

@@ -1,0 +1,12 @@
+{
+  "bounty_schema_version": "0.1",
+  "active": true,
+  "program": {
+    "name": "Example Rewards",
+    "url": "https://example.com/rewards"
+  },
+  "earn": {
+    "display": "Shoppers earn 5 points for every dollar spent."
+  },
+  "updated_at": "2026-09-06"
+}

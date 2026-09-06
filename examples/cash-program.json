@@ -1,0 +1,16 @@
+{
+  "bounty_schema_version": "0.1",
+  "active": true,
+  "program": {
+    "name": "Example Cash Rewards",
+    "url": "https://example.com/program"
+  },
+  "earn": {
+    "display": "Shoppers get 3% back on every order, paid to their account.",
+    "denomination": "USD",
+    "type": "cash"
+  },
+  "api": "https://api.example.com/bounty/store-42",
+  "terms_url": "https://example.com/program/terms",
+  "updated_at": "2026-09-06"
+}
