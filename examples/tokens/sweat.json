@@ -1,0 +1,82 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "SWEAT",
+  "name": "Sweat",
+  "canonical_url": "https://api.nctr.live/v1/tokens/sweat",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "sweat",
+    "name": "SWEAT",
+    "category": "trades",
+    "url": null
+  },
+  "earn": {
+    "display": "Every purchase sponsors the trades — and holders carry standing in that world: its rewards and gear open to them first.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "SWEAT Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "SWEAT Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "SWEAT Gold",
+        "threshold": 15000,
+        "unlocks": [
+          "34d5b5e1-d8bb-4e1e-b7a0-2f81bc3fc013"
+        ]
+      },
+      {
+        "rung": "Platinum",
+        "label": "SWEAT Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "SWEAT Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [
+    {
+      "id": "34d5b5e1-d8bb-4e1e-b7a0-2f81bc3fc013",
+      "rung": "Gold",
+      "name": "The way in",
+      "description": "Tools, training, certifications and scholarship support for the next electrician, welder, lineman.",
+      "state": "planned",
+      "state_note": "In design. Not available.",
+      "opens_at": null,
+      "sponsor": null
+    }
+  ],
+  "unlocks_summary": {
+    "planned": 1,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/sweat/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/sweat",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}

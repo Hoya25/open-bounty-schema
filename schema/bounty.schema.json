@@ -101,6 +101,15 @@
       "type": "string",
       "format": "uri"
     },
+    "tokens": {
+      "type": "array",
+      "description": "Added in v0.3. Canonical Token Profile URLs for what this bounty can be paid in. URLs ONLY: a store never embeds an unlock catalog, because a catalog changes when a partner signs while a store's published object changes when the merchant redeploys — so an embedded copy is stale silently, and a URL can only be unreachable, which an agent can detect. Optional: a v0.1 or v0.2 object without it stays valid.",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "uniqueItems": true
+    },
     "updated_at": {
       "type": "string",
       "format": "date",

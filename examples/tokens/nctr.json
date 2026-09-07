@@ -1,0 +1,64 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "NCTR",
+  "name": "NCTR",
+  "canonical_url": "https://api.nctr.live/v1/tokens/nctr",
+  "listed": true,
+  "lifecycle": "live",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": null,
+  "earn": {
+    "display": "Members earn NCTR on every purchase — earning grows with status.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Commit NCTR with 360LOCK and Crescendo opens. This is the alliance-wide status — the one ladder that raises what you earn.",
+    "earn_ladder_url": "https://api.nctr.live/v1/earn",
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "Gold",
+        "threshold": 15000,
+        "unlocks": []
+      },
+      {
+        "rung": "Platinum",
+        "label": "Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [],
+  "unlocks_summary": {
+    "planned": 0,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/nctr/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/nctr",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}

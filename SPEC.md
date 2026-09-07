@@ -1,4 +1,4 @@
-# Open Bounty Schema — v0.2 (Draft)
+# Open Bounty Schema — v0.3 (Draft)
 
 **A bounty is value paid to the shopper at the purchase.** Discounts lower the price. Reviews describe the product. A bounty pays the buyer — in points, tokens, credit, or cash — and until now there has been no standard way for a store to say so in a form software can read.
 
@@ -9,6 +9,11 @@ License: CC0-1.0. No owner, no gatekeeper. Reference implementation and index: t
 The machine-readable schema is served at **`https://api.nctr.live/schema/bounty/v1.json`**
 (stable alias, tracks the latest 0.x) and **`https://api.nctr.live/schema/bounty/v0.2.json`**
 (pinned). Implementations should pin an exact version; agents may follow the alias.
+The Token Profile schema added in v0.3 is served at
+**`https://api.nctr.live/schema/token/v0.3.json`**.
+
+**v0.3** — adds **§6 Token Profiles** and one optional field, `tokens`, to the bounty object.
+v0.1 and v0.2 objects remain valid and need no reissuing; agents must accept all three.
 
 **v0.2** — discovery order and link-element fallback added to §4; v0.1 objects remain valid;
 agents must accept both. The object itself is unchanged, so nothing published under v0.1 needs
@@ -153,3 +158,112 @@ An agent that checks only step 1 is not conforming. On platforms that forbid roo
 ## 5. Governance
 
 v0.x iterates in the open at the public repository. Field additions require a real program that needs them. The schema stays small on purpose: the category wins by being trivial to adopt and trivial to parse.
+
+---
+
+## 6. Token Profiles (v0.3)
+
+A bounty paid in a token raises a question the bounty object alone cannot answer: **what does holding it get me?**
+
+For a cash bounty the answer is nothing — cash is spent and gone. For a token it is the whole point, and it changes over time as the program behind the token grows. So v0.3 adds a second object type: the **Token Profile**, describing one token and everything holding it unlocks.
+
+This is additive. A program with no tokens ignores §6 entirely, and every v0.1 and v0.2 object stays valid.
+
+### 6.1 The store object gains one optional field
+
+```json
+{
+  "bounty_schema_version": "0.3",
+  "active": true,
+  "program": { "name": "NCTR Alliance", "url": "https://themall.nctr.live" },
+  "earn": { "display": "Members earn NCTR on every purchase — earning grows with status.",
+            "denomination": "NCTR", "type": "token" },
+  "tokens": [
+    "https://api.nctr.live/v1/tokens/nctr",
+    "https://api.nctr.live/v1/tokens/stardust"
+  ],
+  "api": "https://api.nctr.live/v1/bounties",
+  "updated_at": "2026-09-07"
+}
+```
+
+`tokens` is an array of **canonical Token Profile URLs**. That is the entire change to the bounty object.
+
+**A store never embeds an unlock catalog.** This is *liveness over copies* applied where it bites hardest. An unlock catalog changes whenever a partner signs or a reward lands; a store's published object changes when the merchant redeploys, which may be never. Embedding a catalog guarantees that the most stale copy of the most volatile data is the first thing an agent reads — and the failure is silent, because the agent cannot tell a year-old list from a current one. A URL cannot go stale, only unreachable, and unreachable is a state an agent can detect and report.
+
+It also survives the carriers. The Shopify metafield carrier (§2b) is flat key/value with no array type; a catalog could not live there, but one URL can, as `bounty.tokens_url`.
+
+### 6.2 The Token Profile
+
+```json
+{
+  "token_schema_version": "0.3",
+  "symbol": "STARDUST",
+  "canonical_url": "https://api.nctr.live/v1/tokens/stardust",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": { "name": "NCTR Alliance", "url": "https://themall.nctr.live" },
+  "engine": { "slug": "stardust", "name": "STARDUST", "category": "entertainment" },
+  "earn": {
+    "display": "Every purchase sponsors fans into seats — and holders stand first in line for the rooms, the nights, the drops.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier.",
+    "rungs": [
+      { "rung": "Gold", "label": "STARDUST Gold", "threshold": 15000, "unlocks": ["u_sd_03"] }
+    ]
+  },
+  "unlocks": [
+    { "id": "u_sd_03", "rung": "Gold", "name": "Presence at shows",
+      "description": "Seats in the room at partner venues, opening first to holders at this rung.",
+      "state": "planned", "opens_at": null, "sponsor": null }
+  ],
+  "unlocks_summary": { "planned": 1, "committed": 0, "funded": 0 },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/stardust/unlocks",
+  "updated_at": "2026-09-07"
+}
+```
+
+Required: `token_schema_version`, `symbol`, `canonical_url`, `issuer`, `updated_at`. Everything else is optional, because a token that has been defined but not yet described is a real and honest state.
+
+### 6.3 The three unlock states
+
+Every unlock carries a `state`, and it is the load-bearing field of the whole object:
+
+| State | Means | May an agent present it as available? |
+|---|---|---|
+| `planned` | In design | **No. Never.** |
+| `committed` | A written commitment from the partner is on file | **No.** Say "committed", with a date where known |
+| `funded` | Money is behind it | **Yes** |
+
+`state` is a **closed enum** — the only closed vocabulary in §6. Symbols, rungs and lifecycles are all open, because programs differ. The three states are not: they are the guarantee an agent relies on when deciding whether it may tell a shopper a thing exists, and a program inventing a fourth would silently break that.
+
+`unlocks_summary` carries counts by state so an agent can tell at a glance whether anything is actually available without walking the array.
+
+**A `planned` unlock must never name a sponsor.** Naming a partner on something merely intended asserts a relationship that does not exist — the sharpest available violation of *claims must survive scrutiny*.
+
+### 6.4 The roster must be open-ended
+
+A program's set of tokens grows. **Adding a token must never require a schema release, a code change or a deploy.** Concretely:
+
+- `symbol` is validated by **pattern** (`^[A-Z][A-Z0-9]{1,31}$`), **never by an enum of known symbols**. A token the issuer has not created yet is already valid.
+- `status_ladder.rungs` is an array of **any length**, with no enum of rung names. Ladders differ per token, and a consumer must not assume a rung count, a set of names, or a set of thresholds.
+- `lifecycle` is an open vocabulary. `design`, `launching`, `live` and `paused` are examples, not the permitted set.
+
+In the reference implementation `live` is set only when a token actually launches — it is the one value a member-facing surface may treat as real — and a `paused` token is unlisted, still reachable by URL, with every unlock beneath it reading as `planned`. The pause is applied when the catalog is read, never by rewriting rows: a funded unlock under a paused token is still funded, and resuming must not have silently lost that.
+
+The reference implementation's test suite asserts this directly: a profile for an invented symbol with a non-default three-rung ladder must validate. If that test ever fails, someone has hardcoded a roster.
+
+### 6.5 Endpoints (reference implementation)
+
+```
+GET /v1/tokens                     the roster of listed tokens
+GET /v1/tokens/{symbol}            one profile — including unlisted tokens
+GET /v1/tokens/{symbol}/unlocks    the unlocks feed; ?state= and ?rung= filter it
+```
+
+`listed: false` means a token is reachable by direct URL but absent from the roster. It is how an issuer keeps a defined-but-undescribed token honest rather than hidden: the row exists, and nothing claims more about it than is true.
+
+An unknown symbol is a **404**, never a generic profile. Inventing a plausible answer for a token nobody issued is worse than saying no.

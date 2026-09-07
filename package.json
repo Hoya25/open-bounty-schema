@@ -1,12 +1,13 @@
 {
   "name": "open-bounty-schema",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A small, program-agnostic schema for declaring that a purchase pays the shopper.",
   "license": "CC0-1.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node validate.mjs"
+    "test": "node validate.mjs",
+    "live-check": "node live-check.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

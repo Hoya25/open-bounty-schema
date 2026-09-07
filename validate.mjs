@@ -60,7 +60,7 @@ for (const [label, doc] of mustReject) {
 // deliberately mixed — nctr-alliance is 0.2, the rest are 0.1 — so this is
 // proven by the files above as well as asserted here.
 const base = JSON.parse(readFileSync(join(dir, 'minimal.json'), 'utf8'));
-for (const version of ['0.1', '0.2']) {
+for (const version of ['0.1', '0.2', '0.3']) {
   if (validate({ ...base, bounty_schema_version: version })) {
     console.log(`  PASS  accepts bounty_schema_version ${version}`);
   } else {
@@ -73,11 +73,84 @@ const versions = new Set(
   readdirSync(dir).filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')).bounty_schema_version)
 );
-if (versions.has('0.1') && versions.has('0.2')) {
-  console.log('  PASS  example set covers both published versions');
+if (versions.has('0.1') && versions.has('0.2') && versions.has('0.3')) {
+  console.log('  PASS  example set covers all published versions');
 } else {
   failed++;
   console.log(`  FAIL  examples cover only ${[...versions].join(', ')}`);
+}
+
+// ── v0.3: Token Profiles ────────────────────────────────────────────────────
+console.log('\n  Token Profiles (v0.3)');
+
+const tokenSchema = JSON.parse(readFileSync(join(here, 'schema/token.schema.json'), 'utf8'));
+const validateToken = ajv.compile(tokenSchema);
+const tokenDir = join(dir, 'tokens');
+
+for (const file of readdirSync(tokenDir).filter((f) => f.endsWith('.json')).sort()) {
+  const data = JSON.parse(readFileSync(join(tokenDir, file), 'utf8'));
+  if (validateToken(data)) {
+    console.log(`  PASS  tokens/${file}`);
+  } else {
+    failed++;
+    console.log(`  FAIL  tokens/${file}`);
+    for (const e of validateToken.errors) {
+      console.log(`          ${e.instancePath || '/'} ${e.message}`);
+    }
+  }
+}
+
+// THE LOAD-BEARING TEST OF THE WHOLE DESIGN.
+// The issuer's roster grows without limit, and adding a token must never require
+// a schema release. So a profile for a symbol that does not exist — and that
+// nobody has ever heard of — must validate. If this ever fails, someone has
+// added an enum of known symbols and broken the open-ended guarantee.
+const invented = {
+  token_schema_version: '0.3',
+  symbol: 'QUARRY7',
+  name: 'Quarry',
+  canonical_url: 'https://api.nctr.live/v1/tokens/quarry7',
+  listed: false,
+  lifecycle: 'design',
+  issuer: { name: 'NCTR Alliance', url: 'https://themall.nctr.live' },
+  status_ladder: {
+    basis: 'held',
+    // Deliberately THREE rungs, with thresholds unlike the default ladder.
+    // A ladder is per-token and overridable, so a consumer that assumes five
+    // rungs or a fixed threshold set is wrong, and this proves the schema
+    // does not encode that assumption either.
+    note: 'Status in this world. It is not an earning multiplier.',
+    rungs: [
+      { rung: 'Apprentice', threshold: 250 },
+      { rung: 'Journeyman', threshold: 900 },
+      { rung: 'Master', threshold: 4200 }
+    ]
+  },
+  updated_at: '2026-09-07'
+};
+if (validateToken(invented)) {
+  console.log('  PASS  accepts an invented symbol and a non-default ladder (no enum)');
+} else {
+  failed++;
+  console.log('  FAIL  rejected an invented symbol or non-default ladder — the roster has been hardcoded');
+  for (const e of validateToken.errors) console.log(`          ${e.instancePath || '/'} ${e.message}`);
+}
+
+const tokenMustReject = [
+  ['missing symbol', { token_schema_version: '0.3', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01' }],
+  ['lowercase symbol', { token_schema_version: '0.3', symbol: 'sweat', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01' }],
+  ['$-prefixed symbol', { token_schema_version: '0.3', symbol: '$SWEAT', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01' }],
+  ['unknown unlock state', { token_schema_version: '0.3', symbol: 'SWEAT', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01', unlocks: [{ name: 'x', state: 'maybe' }] }],
+  ['unknown top-level field', { token_schema_version: '0.3', symbol: 'SWEAT', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01', budget_usd: 5000 }]
+];
+
+for (const [label, doc] of tokenMustReject) {
+  if (validateToken(doc)) {
+    failed++;
+    console.log(`  FAIL  token schema wrongly ACCEPTED: ${label}`);
+  } else {
+    console.log(`  PASS  correctly rejects: ${label}`);
+  }
 }
 
 console.log(failed ? `\n${failed} failure(s)` : '\nAll checks passed.');

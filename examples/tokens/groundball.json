@@ -1,0 +1,82 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "GROUNDBALL",
+  "name": "Groundball",
+  "canonical_url": "https://api.nctr.live/v1/tokens/groundball",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "groundball",
+    "name": "GROUNDBALL",
+    "category": "lacrosse",
+    "url": null
+  },
+  "earn": {
+    "display": "Every purchase sponsors the next generation in — and holders carry standing in the game's world, first to its rewards.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "GROUNDBALL Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "GROUNDBALL Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "GROUNDBALL Gold",
+        "threshold": 15000,
+        "unlocks": [
+          "6b617c66-b275-48c8-833f-f02f6dc81438"
+        ]
+      },
+      {
+        "rung": "Platinum",
+        "label": "GROUNDBALL Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "GROUNDBALL Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [
+    {
+      "id": "6b617c66-b275-48c8-833f-f02f6dc81438",
+      "rung": "Gold",
+      "name": "The way into the game",
+      "description": "Sticks, seasons, camps and the first set of gear — opening first to holders at this rung.",
+      "state": "planned",
+      "state_note": "In design. Not available.",
+      "opens_at": null,
+      "sponsor": null
+    }
+  ],
+  "unlocks_summary": {
+    "planned": 1,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/groundball/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/groundball",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}
