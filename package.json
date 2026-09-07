@@ -6,7 +6,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node validate.mjs"
+    "test": "node validate.mjs",
+    "live-check": "node live-check.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
