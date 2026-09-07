@@ -1,0 +1,82 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "THROTTLE",
+  "name": "Throttle",
+  "canonical_url": "https://api.nctr.live/v1/tokens/throttle",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "throttle",
+    "name": "THROTTLE",
+    "category": "powersports",
+    "url": null
+  },
+  "earn": {
+    "display": "Every purchase sponsors the ride — and holders stand first for the gear, the meets, the miles.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "THROTTLE Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "THROTTLE Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "THROTTLE Gold",
+        "threshold": 15000,
+        "unlocks": [
+          "538520e5-8a00-4b7a-808b-e6f1201283dd"
+        ]
+      },
+      {
+        "rung": "Platinum",
+        "label": "THROTTLE Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "THROTTLE Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [
+    {
+      "id": "538520e5-8a00-4b7a-808b-e6f1201283dd",
+      "rung": "Gold",
+      "name": "The life of the ride",
+      "description": "Gear, miles and the garage — opening first to holders at this rung.",
+      "state": "planned",
+      "state_note": "In design. Not available.",
+      "opens_at": null,
+      "sponsor": null
+    }
+  ],
+  "unlocks_summary": {
+    "planned": 1,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/throttle/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/throttle",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}

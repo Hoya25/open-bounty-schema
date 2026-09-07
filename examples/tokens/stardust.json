@@ -1,0 +1,82 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "STARDUST",
+  "name": "Stardust",
+  "canonical_url": "https://api.nctr.live/v1/tokens/stardust",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "stardust",
+    "name": "STARDUST",
+    "category": "entertainment",
+    "url": null
+  },
+  "earn": {
+    "display": "Every purchase sponsors fans into seats — and holders stand first in line for the rooms, the nights, the drops.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "STARDUST Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "STARDUST Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "STARDUST Gold",
+        "threshold": 15000,
+        "unlocks": [
+          "61bb44b3-2ec6-4e36-a9fc-ed7693b1e1ac"
+        ]
+      },
+      {
+        "rung": "Platinum",
+        "label": "STARDUST Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "STARDUST Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [
+    {
+      "id": "61bb44b3-2ec6-4e36-a9fc-ed7693b1e1ac",
+      "rung": "Gold",
+      "name": "Presence at shows",
+      "description": "Seats in the room at partner venues, opening first to holders at this rung.",
+      "state": "planned",
+      "state_note": "In design. Not available.",
+      "opens_at": null,
+      "sponsor": null
+    }
+  ],
+  "unlocks_summary": {
+    "planned": 1,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/stardust/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/stardust",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}

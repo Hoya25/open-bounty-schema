@@ -1,0 +1,66 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "SISU",
+  "name": "Sisu",
+  "canonical_url": "https://api.nctr.live/v1/tokens/sisu",
+  "listed": false,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "sisu",
+    "name": "SISU",
+    "category": "recovery",
+    "url": null
+  },
+  "earn": null,
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "SISU Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "SISU Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "SISU Gold",
+        "threshold": 15000,
+        "unlocks": []
+      },
+      {
+        "rung": "Platinum",
+        "label": "SISU Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "SISU Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [],
+  "unlocks_summary": {
+    "planned": 0,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/sisu/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/sisu",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}

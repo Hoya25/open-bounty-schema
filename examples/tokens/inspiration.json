@@ -1,0 +1,82 @@
+{
+  "token_schema_version": "0.3",
+  "symbol": "INSPIRATION",
+  "name": "Inspiration",
+  "canonical_url": "https://api.nctr.live/v1/tokens/inspiration",
+  "listed": true,
+  "lifecycle": "design",
+  "issuer": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "engine": {
+    "slug": "inspiration",
+    "name": "INSPIRATION",
+    "category": "wellness",
+    "url": null
+  },
+  "earn": {
+    "display": "Every purchase sponsors renewal — and holding builds standing in the wellness world: its rewards and drops open first to holders.",
+    "type": "token"
+  },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this engine's world. It is not an earning multiplier — the alliance-wide multiplier is carried by NCTR alone.",
+    "earn_ladder_url": null,
+    "rungs": [
+      {
+        "rung": "Bronze",
+        "label": "INSPIRATION Bronze",
+        "threshold": 1000,
+        "unlocks": []
+      },
+      {
+        "rung": "Silver",
+        "label": "INSPIRATION Silver",
+        "threshold": 5000,
+        "unlocks": []
+      },
+      {
+        "rung": "Gold",
+        "label": "INSPIRATION Gold",
+        "threshold": 15000,
+        "unlocks": [
+          "c964e2f9-f378-491b-9631-f5e071864667"
+        ]
+      },
+      {
+        "rung": "Platinum",
+        "label": "INSPIRATION Platinum",
+        "threshold": 40000,
+        "unlocks": []
+      },
+      {
+        "rung": "Diamond",
+        "label": "INSPIRATION Diamond",
+        "threshold": 100000,
+        "unlocks": []
+      }
+    ]
+  },
+  "unlocks": [
+    {
+      "id": "c964e2f9-f378-491b-9631-f5e071864667",
+      "rung": "Gold",
+      "name": "The work of renewal",
+      "description": "The products, programs and resets people reach for — opening first to holders at this rung.",
+      "state": "planned",
+      "state_note": "In design. Not available.",
+      "opens_at": null,
+      "sponsor": null
+    }
+  ],
+  "unlocks_summary": {
+    "planned": 1,
+    "committed": 0,
+    "funded": 0
+  },
+  "unlocks_url": "https://api.nctr.live/v1/tokens/inspiration/unlocks",
+  "api": "https://api.nctr.live/v1/tokens/inspiration",
+  "terms_url": null,
+  "updated_at": "2026-09-07"
+}
