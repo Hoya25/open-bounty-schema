@@ -250,7 +250,9 @@ A program's set of tokens grows. **Adding a token must never require a schema re
 
 - `symbol` is validated by **pattern** (`^[A-Z][A-Z0-9]{1,31}$`), **never by an enum of known symbols**. A token the issuer has not created yet is already valid.
 - `status_ladder.rungs` is an array of **any length**, with no enum of rung names. Ladders differ per token, and a consumer must not assume a rung count, a set of names, or a set of thresholds.
-- `lifecycle` is an open vocabulary. `design`, `launching` and `live` are examples, not the permitted set.
+- `lifecycle` is an open vocabulary. `design`, `launching`, `live` and `paused` are examples, not the permitted set.
+
+In the reference implementation `live` is set only when a token actually launches — it is the one value a member-facing surface may treat as real — and a `paused` token is unlisted, still reachable by URL, with every unlock beneath it reading as `planned`. The pause is applied when the catalog is read, never by rewriting rows: a funded unlock under a paused token is still funded, and resuming must not have silently lost that.
 
 The reference implementation's test suite asserts this directly: a profile for an invented symbol with a non-default three-rung ladder must validate. If that test ever fails, someone has hardcoded a roster.
 

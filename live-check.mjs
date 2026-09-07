@@ -34,13 +34,24 @@ for (const s of ['sisu', 'shift']) {
 }
 
 // Drift guard: the vendored schema the Worker serves must equal the repo's.
-const served = await get('https://api.nctr.live/schema/token/v0.3.json');
+// Cache-bust: this asserts what the ORIGIN serves. The edge caches schema
+// documents, so a correction made minutes ago may still be cached — that is a
+// propagation delay, not drift, and conflating the two makes the guard cry wolf.
+const served = await get(`https://api.nctr.live/schema/token/v0.3.json?cb=${Date.now()}`);
 const local = JSON.parse(readFileSync('schema/token.schema.json', 'utf8'));
 if (JSON.stringify(served) === JSON.stringify(local)) {
   console.log('  PASS  served token schema matches the repo (no drift)');
 } else {
   failed++;
   console.log('  FAIL  served token schema has DRIFTED from the repo');
+}
+
+// Report the edge-cached copy separately, so a lag is visible without failing.
+const cached = await get('https://api.nctr.live/schema/token/v0.3.json');
+if (JSON.stringify(cached) === JSON.stringify(local)) {
+  console.log('  PASS  edge cache is serving the current schema');
+} else {
+  console.log('  WARN  edge cache still serving an older schema — propagation lag, not drift');
 }
 
 console.log(failed ? `\n${failed} failure(s)` : '\nLive implementation conforms.');

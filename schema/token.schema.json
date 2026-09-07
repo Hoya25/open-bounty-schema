@@ -38,8 +38,8 @@
     },
     "lifecycle": {
       "type": "string",
-      "description": "Where the token is in its life. An open vocabulary by design: an issuer may define its own stages, and a consumer must not assume this set.",
-      "examples": ["design", "launching", "live"]
+      "description": "Where the token is in its life. An open vocabulary by design: an issuer may define its own stages, and a consumer must not assume this set. In the reference implementation, `live` is set only when the token actually launches and is the one value a member-facing surface may treat as real; a `paused` token is unlisted, stays reachable by URL, and every unlock beneath it reads as `planned`.",
+      "examples": ["design", "launching", "live", "paused"]
     },
     "issuer": {
       "type": "object",
