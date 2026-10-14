@@ -43,7 +43,12 @@ const mustReject = [
   ['missing required field', { active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, updated_at: '2026-01-01' }],
   ['unknown top-level field', { bounty_schema_version: '0.1', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, updated_at: '2026-01-01', rate: 0.05 }],
   ['bad earn.type', { bounty_schema_version: '0.1', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y', type: 'crypto' }, updated_at: '2026-01-01' }],
-  ['non-ISO updated_at', { bounty_schema_version: '0.1', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, updated_at: 'Sept 6 2026' }]
+  ['non-ISO updated_at', { bounty_schema_version: '0.1', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, updated_at: 'Sept 6 2026' }],
+  // v0.4 enums are closed: an agent decides whether to check the product page
+  // on `scope`, and weighs the source on `listed_by`, so an invented value must
+  // not slip through as if it meant something.
+  ['unknown scope', { bounty_schema_version: '0.4', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, scope: 'some', updated_at: '2026-01-01' }],
+  ['unknown listed_by', { bounty_schema_version: '0.4', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, listed_by: 'agent', updated_at: '2026-01-01' }]
 ];
 
 for (const [label, doc] of mustReject) {
@@ -55,12 +60,13 @@ for (const [label, doc] of mustReject) {
   }
 }
 
-// v0.2 added a discovery order, not a field. Objects published under v0.1 stay
-// valid and agents must accept both, so the schema must too. The example set is
-// deliberately mixed — nctr-alliance is 0.2, the rest are 0.1 — so this is
-// proven by the files above as well as asserted here.
+// Every 0.x version stays valid: v0.2 added a discovery order, v0.3 the
+// optional `tokens`, v0.4 the optional `scope` and `listed_by`. Agents must
+// accept all of them, so the schema must too. The example set is deliberately
+// mixed across 0.1–0.4, so this is proven by the files above as well as
+// asserted here.
 const base = JSON.parse(readFileSync(join(dir, 'minimal.json'), 'utf8'));
-for (const version of ['0.1', '0.2', '0.3']) {
+for (const version of ['0.1', '0.2', '0.3', '0.4']) {
   if (validate({ ...base, bounty_schema_version: version })) {
     console.log(`  PASS  accepts bounty_schema_version ${version}`);
   } else {
@@ -73,11 +79,22 @@ const versions = new Set(
   readdirSync(dir).filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')).bounty_schema_version)
 );
-if (versions.has('0.1') && versions.has('0.2') && versions.has('0.3')) {
+if (['0.1', '0.2', '0.3', '0.4'].every((v) => versions.has(v))) {
   console.log('  PASS  example set covers all published versions');
 } else {
   failed++;
   console.log(`  FAIL  examples cover only ${[...versions].join(', ')}`);
+}
+
+// v0.4 added two OPTIONAL fields. A v0.3 object published before them carries
+// neither and must still validate unchanged — the additive guarantee, asserted
+// against the real v0.3 example rather than a synthetic one.
+const v03 = JSON.parse(readFileSync(join(dir, 'nctr-alliance-v03.json'), 'utf8'));
+if (v03.bounty_schema_version === '0.3' && !('scope' in v03) && !('listed_by' in v03) && validate(v03)) {
+  console.log('  PASS  a v0.3 object without scope or listed_by still validates');
+} else {
+  failed++;
+  console.log('  FAIL  the v0.3 example no longer validates as published');
 }
 
 // ── v0.3: Token Profiles ────────────────────────────────────────────────────

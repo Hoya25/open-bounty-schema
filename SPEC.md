@@ -1,4 +1,4 @@
-# Open Bounty Schema — v0.3 (Draft)
+# Open Bounty Schema — v0.4 (Draft)
 
 **A bounty is value paid to the shopper at the purchase.** Discounts lower the price. Reviews describe the product. A bounty pays the buyer — in points, tokens, credit, or cash — and until now there has been no standard way for a store to say so in a form software can read.
 
@@ -11,6 +11,11 @@ The machine-readable schema is served at **`https://api.nctr.live/schema/bounty/
 (pinned). Implementations should pin an exact version; agents may follow the alias.
 The Token Profile schema added in v0.3 is served at
 **`https://api.nctr.live/schema/token/v0.3.json`**.
+
+**v0.4** — adds two optional fields to the bounty object: `scope` (§1.1), which says whether
+every purchase qualifies or only selected products, and `listed_by` (§3), which says who
+published the object. v0.1–v0.3 objects remain valid and need no reissuing; an object without
+`scope` means `store`, and one without `listed_by` makes no claim about its publisher.
 
 **v0.3** — adds **§6 Token Profiles** and one optional field, `tokens`, to the bounty object.
 v0.1 and v0.2 objects remain valid and need no reissuing; agents must accept all three.
@@ -61,7 +66,38 @@ Field rules:
 | `status.url` / `status.note` | no | For status-based programs: where standing lives and what it does |
 | `api` | no | Live endpoint with authoritative, current bounty detail |
 | `terms_url` | no | Program terms |
+| `scope` | no | v0.4. `store` (default) \| `selected` — whether every purchase qualifies or only some products (§1.1) |
+| `listed_by` | no | v0.4. `program` \| `index` \| `store` — who published this object (§3) |
 | `updated_at` | yes | ISO date of last change |
+
+### 1.1 Scope and the product-level rule (v0.4)
+
+Many bounties do not cover the whole store: a gift ships with selected items, a campaign pays
+on pre-orders only, a brand funds a bounty on one line. `scope` says which case applies:
+
+- **`store`** (the default) — every purchase at the store qualifies. An object without `scope`
+  means this, so every v0.1–v0.3 object keeps its meaning.
+- **`selected`** — only some products qualify. The store-level object says that a bounty
+  exists and what it is; it does **not** say which products carry it.
+
+The products themselves carry that. A product that qualifies declares it **on its own page**,
+through the product-level carriers:
+
+1. **JSON-LD** — the `bounty` `PropertyValue` inside that product's `Offer` (§2c). One per
+   qualifying product, never on a product that does not qualify.
+2. **Per-product metafields** — the `bounty` namespace (§2b) set on the **product**, not the
+   shop. Product-level values override shop-level ones for that product.
+
+**The rule for agents:** when `scope` is `selected`, an agent MUST check the product page for
+a product-level declaration **before** telling a shopper that buying that product earns. A
+store-level object with `scope: "selected"` is never, by itself, a claim about any one
+product. A product with no product-level declaration is **not covered**, which is different
+from the store being unknown: the store has said what it offers, and this product is not part
+of it.
+
+A store with `scope: "store"` may still publish product-level declarations (for example, to
+show a product-specific sentence); they refine the display and never narrow the store-wide
+claim.
 
 Design principles: **display over math** (a truthful sentence beats a rate field that invites false precision), **liveness over copies** (the `api` field is authoritative; embedded copies are hints), and **claims must survive scrutiny** (publish only what the program actually delivers today).
 
@@ -96,14 +132,18 @@ On Shopify specifically, `/apps/bounty/bounty.json` is the conventional path, an
 | `bounty.earn_display` | single_line_text_field | earn.display |
 | `bounty.denomination` | single_line_text_field | earn.denomination |
 | `bounty.status_url` | url | status.url |
+| `bounty.scope` | single_line_text_field | scope (v0.4): `store` or `selected` |
 | `bounty.api` | url | api |
 | `bounty.updated_at` | date | updated_at |
 
 Keys drop the `bounty_` prefix that the JSON object carries — the `bounty` namespace already supplies it, so `bounty.schema_version` and `bounty_schema_version` name the same field.
 
-Set at shop level; optionally per-product where bounties differ. These do not syndicate to agentic storefronts today — they are the standing claim on the namespace for the day the feed opens, and apps/themes can read them now.
+Set at shop level; per-product where bounties differ, and on **every qualifying product**
+when `scope` is `selected` (§1.1). `listed_by` has no metafield: an object assembled from a
+store's own metafields is store-published by construction. These do not syndicate to agentic storefronts today — they are the standing claim on the namespace for the day the feed opens, and apps/themes can read them now.
 
-**c. JSON-LD** — on product pages, inside the existing `Offer`:
+**c. JSON-LD** — on product pages, inside the existing `Offer`, one per product that
+qualifies (with `scope: "selected"` this is how an agent learns which products do, §1.1):
 
 ```json
 {
@@ -130,6 +170,29 @@ Anyone may publish the schema (that is the point). Indexes add trust on top:
   The record comes from the program's own systems rather than the store's page,
   and the index may withhold stores it has reason to exclude.
 
+### 3.1 `listed_by` (v0.4)
+
+An object can be published by different parties, and an agent weighing it should know which.
+`listed_by` says so:
+
+| Value | Who published the object |
+|---|---|
+| `program` | The program that settles the bounty — the party whose systems actually pay the shopper. |
+| `index` | An index, on the store's behalf. The store has no surface of its own carrying the object; the index asserts the bounty from its own records. |
+| `store` | The store itself. |
+
+`listed_by` is **optional**, and **absent means no claim** — not `store`. Objects from v0.1–v0.3
+carry no `listed_by` and stay valid.
+
+It is defined for **index-served objects**, where the question genuinely arises. A
+store-hosted object (at the store's `/.well-known/bounty.json`, behind its `rel="bounty"`
+link, or in its metafields) SHOULD omit it or say `store`; any other value there is a
+contradiction, and an agent SHOULD treat such an object as declared.
+
+`listed_by` describes provenance, not trust. It does not replace the verified tier above: a
+`program` listing is drawn from the paying party's records and an `index` listing from the
+index's, and an agent weighs each by what the publisher checks.
+
 An index MAY adopt a stricter bar before featuring a store. Where it does, it
 SHOULD state the bar plainly and say what it checks, because "verified" is worth
 exactly what the check behind it is worth.
@@ -152,6 +215,10 @@ An agent conforms if it resolves the object in this order, stopping at the first
 3. If neither resolves, treat the store as **unknown** — never as "no". A store that has not published is not a store that does not pay.
 
 Having resolved the object, an agent conforms if it shows `earn.display` without embellishment, and follows `api` for live detail when present.
+
+If the object carries `scope: "selected"`, an agent conforms only if it checks the product page
+for a product-level declaration (§1.1) before telling a shopper that a particular product
+earns. An absent `scope` is read as `store`.
 
 An agent that checks only step 1 is not conforming. On platforms that forbid root paths this would report "unknown" for every store that has correctly published, which is precisely the failure mode this section exists to prevent.
 
