@@ -67,7 +67,13 @@ What exists today:
 - The Alliance publishes its own program-level object at **[`https://api.nctr.live/.well-known/bounty.json`](https://api.nctr.live/.well-known/bounty.json)** — the schema describing the Alliance's own bounty, live and fetchable.
 - **[`https://api.nctr.live/v1/bounties/{brand}`](https://api.nctr.live/v1/bounties)** returns a schema-shaped representation for a listed store, so the `api` field resolves to something an agent can parse.
 
-What does not exist yet, stated plainly because the third design principle applies to us too: **the index does not list partner stores today.** Store listings arrive as brands fund bounties. The Registry's verified tier and its funding bar are described in [§3 of the spec](SPEC.md#3-verification) — including which part of it is a roadmap commitment rather than a description of today.
+What the index lists today, stated plainly because the third design principle applies to us too: **6,000-plus stores**, almost all of them **declared by the index** rather than by the store. Every object says which, in `listed_by` ([§3.1](SPEC.md#31-listed_by-v04)):
+
+- `program` means the program that settles the bounty publishes the object. Today that's one store, NCTR Merch, settled directly through the alliance's merchant system.
+- `index` means the index publishes the object from its own records, on the store's behalf. The store's own site carries nothing yet, and an agent should weigh the object as the index's claim, not the store's.
+- `store` means the store publishes the object itself.
+
+The Registry's verified tier and its funding bar are described in [§3 of the spec](SPEC.md#3-verification), including which part of it is a roadmap commitment rather than a description of today.
 
 An index that overstated its coverage would be exactly the failure this schema exists to prevent.
 
