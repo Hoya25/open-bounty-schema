@@ -8,7 +8,7 @@ This is that form. One small JSON object, published at a known path, answering o
 
 > **Does buying here pay the shopper?**
 
-**[Read the spec →](SPEC.md)**
+**[Read the spec →](SPEC.md)** · **[Adopting it →](ADOPTERS.md)** (questions, which agents read which carrier, programs, how to verify)
 
 License: **CC0-1.0**. No owner, no gatekeeper, no membership. Copy it, fork it, implement it, ignore the people who wrote it.
 
@@ -63,6 +63,7 @@ the contract doesn't need them.
 | Path | What it is |
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.4**. |
+| [`ADOPTERS.md`](ADOPTERS.md) | For programs, stores, app builders and agent builders: declaring vs settling, pinning, product-level scope, which agents read which carrier, the programs and loyalty integrations, and how to verify a store. |
 | [`SETTLEMENT.md`](SETTLEMENT.md) | The settlement contract (**v0.1**, draft): how a program credits a shopper for an order. The order event, the response, the states (received → pending → confirmed → reversed), and the refund hold. Schema: [`schema/settlement-event.schema.json`](schema/settlement-event.schema.json). |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. Also served at **`https://api.nctr.live/schema/bounty/v1.json`** (stable alias) and **`/v0.2.json`** (pinned) — implementers should fetch those rather than a raw GitHub URL. |
 | [`examples/`](examples/) | Valid objects: a token program, two cash programs, a gift with purchase, a pre-launch campaign tier, the minimum required fields, and an inactive store. |
