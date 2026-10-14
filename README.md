@@ -43,6 +43,15 @@ Agents resolve the well-known path first and fall back to the link element, so b
 
 Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`, and a plain catalog sentence — are described in [the spec](SPEC.md), so the same object reaches agents that never fetch a file at all.
 
+## Declaring and settling
+
+The bounty object **declares**: buying here pays the shopper, and here's what they get. Paying
+it is **settling**, and that's a separate, equally small contract:
+**[SETTLEMENT.md](SETTLEMENT.md)**. A store or checkout sends one order event to the program, the
+program answers about receipt only, and the shopper's credit moves from `pending` to `confirmed`
+once the program's refund hold has passed. Programs keep their rates and funding to themselves;
+the contract doesn't need them.
+
 ## Design principles
 
 - **Display over math.** One truthful sentence beats a rate field that invites false precision. Programs differ too much for a universal rate; they do not differ on whether they can state plainly what a shopper gets.
@@ -54,6 +63,7 @@ Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`,
 | Path | What it is |
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.4**. |
+| [`SETTLEMENT.md`](SETTLEMENT.md) | The settlement contract (**v0.1**, draft): how a program credits a shopper for an order. The order event, the response, the states (received → pending → confirmed → reversed), and the refund hold. Schema: [`schema/settlement-event.schema.json`](schema/settlement-event.schema.json). |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. Also served at **`https://api.nctr.live/schema/bounty/v1.json`** (stable alias) and **`/v0.2.json`** (pinned) — implementers should fetch those rather than a raw GitHub URL. |
 | [`examples/`](examples/) | Valid objects: a token program, two cash programs, a gift with purchase, a pre-launch campaign tier, the minimum required fields, and an inactive store. |
 | [`validate.mjs`](validate.mjs) | Validates every example, and asserts the schema **rejects** malformed objects. `npm install && npm test` |

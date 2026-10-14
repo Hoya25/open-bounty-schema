@@ -170,6 +170,11 @@ Anyone may publish the schema (that is the point). Indexes add trust on top:
   The record comes from the program's own systems rather than the store's page,
   and the index may withhold stores it has reason to exclude.
 
+**Settling** is defined separately, in [SETTLEMENT.md](SETTLEMENT.md): the order event a program
+accepts, its response, the credit states (received → pending → confirmed → reversed), and the refund
+hold. A verified listing means the program acknowledges the store; settlement is how that program
+actually credits the shopper on an order.
+
 ### 3.1 `listed_by` (v0.4)
 
 An object can be published by different parties, and an agent weighing it should know which.

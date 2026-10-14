@@ -1,0 +1,12 @@
+{
+  "settlement_version": "0.1",
+  "type": "order.refunded",
+  "idempotency_key": "shop.example:order:5531001:refund:1",
+  "refers_to": "shop.example:order:5531001:paid",
+  "order_id": "5531001",
+  "store_domain": "shop.example",
+  "total": { "amount": "22.50", "currency": "USD" },
+  "line_items": [{ "id": "sku-2210", "quantity": 1, "amount": "22.50" }],
+  "shopper": { "id": "mbr_8f2c91", "id_type": "member_id" },
+  "occurred_at": "2026-10-19T09:03:44Z"
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hoya25/open-bounty-schema/schema/settlement-event.schema.json",
+  "title": "Open Bounty Settlement — order event",
+  "description": "One order event sent to a program's settlement endpoint (SETTLEMENT.md §2). Unknown fields are allowed and MUST be ignored by the program.",
+  "type": "object",
+  "required": [
+    "settlement_version",
+    "type",
+    "idempotency_key",
+    "order_id",
+    "store_domain",
+    "total",
+    "shopper",
+    "occurred_at"
+  ],
+  "properties": {
+    "settlement_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "order.paid",
+        "order.refunded",
+        "order.cancelled"
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "order_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "store_domain": {
+      "type": "string",
+      "description": "Primary domain, no scheme.",
+      "pattern": "^(?!-)[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$"
+    },
+    "total": {
+      "type": "object",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "type": "string",
+          "description": "Decimal string, never a float.",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "description": "ISO 4217.",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "quantity",
+          "amount"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          }
+        }
+      }
+    },
+    "shopper": {
+      "type": "object",
+      "description": "As the program defines it; the program states the id_type values it accepts.",
+      "required": [
+        "id",
+        "id_type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "refers_to": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The idempotency_key of the order.paid event a refund or cancellation applies to."
+    }
+  },
+  "if": {
+    "properties": {
+      "type": {
+        "enum": [
+          "order.refunded",
+          "order.cancelled"
+        ]
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "refers_to": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "refers_to"
+    ]
+  }
+}

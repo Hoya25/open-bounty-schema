@@ -170,5 +170,49 @@ for (const [label, doc] of tokenMustReject) {
   }
 }
 
+// ── Settlement events (SETTLEMENT.md) ───────────────────────────────────────
+console.log('\n  Settlement events (v0.1)');
+
+const settlementSchema = JSON.parse(readFileSync(join(here, 'schema/settlement-event.schema.json'), 'utf8'));
+const validateSettlement = ajv.compile(settlementSchema);
+const settlementDir = join(dir, 'settlement');
+
+for (const file of readdirSync(settlementDir).filter((f) => f.endsWith('.json')).sort()) {
+  const data = JSON.parse(readFileSync(join(settlementDir, file), 'utf8'));
+  if (validateSettlement(data)) {
+    console.log(`  PASS  settlement/${file}`);
+  } else {
+    failed++;
+    console.log(`  FAIL  settlement/${file}`);
+    for (const e of validateSettlement.errors) console.log(`          ${e.instancePath || '/'} ${e.message}`);
+  }
+}
+
+const paid = JSON.parse(readFileSync(join(settlementDir, 'order-paid.json'), 'utf8'));
+const settlementMustReject = [
+  ['missing idempotency_key', (({ idempotency_key, ...rest }) => rest)(paid)],
+  ['float amount', { ...paid, total: { amount: 84.5, currency: 'USD' } }],
+  ['minor-unit or malformed currency', { ...paid, total: { amount: '84.50', currency: 'usd' } }],
+  ['store_domain with a scheme', { ...paid, store_domain: 'https://shop.example' }],
+  ['refund without refers_to', { ...paid, type: 'order.refunded', idempotency_key: 'k2' }],
+  ['unknown event type', { ...paid, type: 'order.shipped' }],
+  ['missing shopper id_type', { ...paid, shopper: { id: 'mbr_1' } }]
+];
+for (const [label, doc] of settlementMustReject) {
+  if (validateSettlement(doc)) {
+    failed++;
+    console.log(`  FAIL  settlement schema wrongly ACCEPTED: ${label}`);
+  } else {
+    console.log(`  PASS  correctly rejects: ${label}`);
+  }
+}
+// §2: unknown fields MUST be ignored, so a sender's own context is not an error.
+if (validateSettlement({ ...paid, sender_context: { relay: 'x' } })) {
+  console.log('  PASS  accepts unknown fields (programs ignore them)');
+} else {
+  failed++;
+  console.log('  FAIL  rejected an unknown field; §2 says programs ignore them');
+}
+
 console.log(failed ? `\n${failed} failure(s)` : '\nAll checks passed.');
 process.exit(failed ? 1 : 0);
