@@ -1,0 +1,22 @@
+{
+  "bounty_schema_version": "0.4",
+  "active": true,
+  "program": {
+    "name": "Example Footwear Founders",
+    "url": "https://founders.example.org"
+  },
+  "earn": {
+    "display": "Pre-orders placed before launch day earn double points and the Founder tier.",
+    "denomination": "points",
+    "type": "points"
+  },
+  "status": {
+    "url": "https://founders.example.org/tiers",
+    "note": "Founder is a campaign tier: it is open only until launch day and is kept afterwards."
+  },
+  "scope": "selected",
+  "listed_by": "program",
+  "api": "https://founders.example.org/api/bounties/footwear-example",
+  "terms_url": "https://founders.example.org/terms",
+  "updated_at": "2026-10-14"
+}

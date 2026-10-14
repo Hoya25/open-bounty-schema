@@ -1,0 +1,18 @@
+{
+  "bounty_schema_version": "0.4",
+  "active": true,
+  "program": {
+    "name": "Example Outfitters Rewards",
+    "url": "https://outfitters.example.com/rewards"
+  },
+  "earn": {
+    "display": "Members get a cash reward of 2% of every order, paid to their linked account after the return window closes.",
+    "denomination": "USD",
+    "type": "cash"
+  },
+  "scope": "store",
+  "listed_by": "store",
+  "api": "https://outfitters.example.com/api/bounty",
+  "terms_url": "https://outfitters.example.com/rewards/terms",
+  "updated_at": "2026-10-14"
+}

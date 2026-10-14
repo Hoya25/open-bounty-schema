@@ -53,9 +53,9 @@ Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`,
 
 | Path | What it is |
 |---|---|
-| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.2**. |
+| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.4**. |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. Also served at **`https://api.nctr.live/schema/bounty/v1.json`** (stable alias) and **`/v0.2.json`** (pinned) — implementers should fetch those rather than a raw GitHub URL. |
-| [`examples/`](examples/) | Valid objects: a token program, a cash program, the minimum required fields, and an inactive store. |
+| [`examples/`](examples/) | Valid objects: a token program, two cash programs, a gift with purchase, a pre-launch campaign tier, the minimum required fields, and an inactive store. |
 | [`validate.mjs`](validate.mjs) | Validates every example, and asserts the schema **rejects** malformed objects. `npm install && npm test` |
 
 ## Reference implementation

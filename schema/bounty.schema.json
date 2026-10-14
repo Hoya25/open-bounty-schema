@@ -18,7 +18,8 @@
       "description": "Spec version this object conforms to.",
       "pattern": "^[0-9]+\\.[0-9]+$",
       "examples": [
-        "0.1"
+        "0.1",
+        "0.4"
       ]
     },
     "active": {
@@ -109,6 +110,24 @@
         "format": "uri"
       },
       "uniqueItems": true
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "store",
+        "selected"
+      ],
+      "default": "store",
+      "description": "Added in v0.4. What the bounty covers. `store` (the default, and the meaning of an object without this field): every purchase at the store qualifies. `selected`: only some products qualify, and an agent MUST confirm the product-level declaration on the product page (the JSON-LD Offer property or the per-product metafields, §1.1) before telling a shopper a given product earns. Optional: objects without it stay valid."
+    },
+    "listed_by": {
+      "type": "string",
+      "enum": [
+        "program",
+        "index",
+        "store"
+      ],
+      "description": "Added in v0.4. Who publishes this object (§3). `program`: the program that settles the bounty publishes it. `index`: an index publishes it on the store's behalf, and the store has no surface of its own carrying it. `store`: the store publishes it itself. Absent means no claim is made. A store-hosted object omits it or says `store`. Optional: objects without it stay valid."
     },
     "updated_at": {
       "type": "string",
