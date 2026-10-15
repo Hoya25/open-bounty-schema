@@ -31,11 +31,17 @@ export function normalizeDomain(value) {
   const raw = String(value ?? '').trim().toLowerCase();
   let host = '';
   try { host = new URL(raw.includes('://') ? raw : `https://${raw}`).hostname; } catch { return null; }
+  // A store is a public hostname: no IP literals, no local or internal names.
+  if (/^\d+(\.\d+){3}$/.test(host) || host.includes(':') || /(^|\.)(localhost|local|internal|lan|home\.arpa)$/.test(host)) return null;
   return HOST.test(host) ? host : null;
 }
 
-/** GET with a size cap; https only, including after redirects. Never throws. */
-async function get(fetchFn, url, limit, accept, userAgent) {
+/**
+ * GET with a size cap; https only, including after redirects. Never throws.
+ * `stopAtHeadEnd` stops reading once `</head>` has arrived. The link carrier
+ * lives in the head, so a large storefront page needn't be read to the end.
+ */
+async function get(fetchFn, url, limit, accept, userAgent, stopAtHeadEnd = false) {
   if (!/^https:\/\//i.test(url)) return { status: 0, bytes: null, url, headers: new Headers(), note: 'not https' };
   try {
     const res = await fetchFn(url, { redirect: 'follow', headers: { Accept: accept, 'User-Agent': userAgent } });
@@ -43,13 +49,18 @@ async function get(fetchFn, url, limit, accept, userAgent) {
     const reader = res.body?.getReader?.();
     let bytes;
     if (reader) {
-      const chunks = []; let size = 0;
+      const chunks = []; let size = 0; let tail = '';
+      const dec = stopAtHeadEnd ? new TextDecoder() : null;
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
         size += value.byteLength;
         if (size > limit) { await reader.cancel(); return { status: res.status, bytes: null, url: res.url || url, headers: res.headers, note: 'too large' }; }
         chunks.push(value);
+        if (dec) {
+          tail = (tail + dec.decode(value, { stream: true })).slice(-16384);
+          if (/<\/head\s*>/i.test(tail)) { await reader.cancel().catch(() => {}); break; }
+        }
       }
       bytes = new Uint8Array(size); let o = 0;
       for (const c of chunks) { bytes.set(c, o); o += c.byteLength; }
@@ -230,7 +241,7 @@ export async function check(domainInput, options = {}) {
   // §4 step 1
   carriers.well_known = await objectCarrier(fetchFn, `https://${domain}/.well-known/bounty.json`, schema, userAgent);
   // §4 step 2 (always checked, so every carrier is reported, not only the first hit)
-  const home = await get(fetchFn, `https://${domain}/`, MAX_HTML, 'text/html', userAgent);
+  const home = await get(fetchFn, `https://${domain}/`, MAX_HTML, 'text/html', userAgent, true);
   const href = home.status === 200 ? findBountyLink(text(home.bytes)) : null;
   carriers.link = href
     ? { href, ...(await objectCarrier(fetchFn, new URL(href, home.url).toString(), schema, userAgent)) }

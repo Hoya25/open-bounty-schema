@@ -108,9 +108,16 @@ test('localized earn.display reports the default; outside valid_until is valid b
 test('https only; domains are normalised', async () => {
   assert.equal(normalizeDomain('HTTPS://Shop.Test/path'), 'shop.test');
   assert.equal(normalizeDomain('not a domain'), null);
+  for (const bad of ['10.0.0.1', '127.0.0.1', 'localhost', 'printer.local', 'db.internal']) assert.equal(normalizeDomain(bad), null, bad);
   const r = await run({
     'https://shop.test/': [200, '<head><link rel="bounty" href="http://shop.test/b.json"></head>'],
     'http://shop.test/b.json': [200, OBJ],
   });
   assert.equal(r.status, 'unknown');
+});
+
+test('a huge storefront page: reading stops at </head>, so the size cap does not hide the link', async () => {
+  const big = '<html><head><link rel="bounty" href="/b.json"></head><body>' + 'x'.repeat(4 * 1024 * 1024) + '</body></html>';
+  const r = await run({ 'https://shop.test/': [200, big], 'https://shop.test/b.json': [200, OBJ] });
+  assert.equal(r.status, 'valid'); assert.equal(r.found_at, 'link');
 });
