@@ -1,0 +1,16 @@
+{
+  "name": "open-bounty-check",
+  "version": "0.6.0",
+  "description": "Check any store's Open Bounty Schema declaration: the §4 discovery walk, schema validation, signature verification, and each carrier.",
+  "license": "CC0-1.0",
+  "type": "module",
+  "bin": { "open-bounty-check": "bin/open-bounty-check.js" },
+  "exports": { ".": "./lib/check.js" },
+  "files": ["bin", "lib", "README.md"],
+  "engines": { "node": ">=20" },
+  "dependencies": { "@cfworker/json-schema": "4.1.1" },
+  "scripts": { "test": "node --test test/*.test.js" },
+  "repository": { "type": "git", "url": "git+https://github.com/Hoya25/open-bounty-schema.git", "directory": "tools/check" },
+  "homepage": "https://github.com/Hoya25/open-bounty-schema/tree/main/tools/check",
+  "keywords": ["open-bounty-schema", "rewards", "loyalty", "agents", "conformance"]
+}

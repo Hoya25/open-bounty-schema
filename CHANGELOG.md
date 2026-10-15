@@ -4,6 +4,13 @@ Every 0.x version is additive: an object valid under an earlier 0.x stays valid.
 every 0.x. The stable schema alias `https://api.nctr.live/schema/bounty/v1.json` tracks the latest;
 `/schema/bounty/v0.2.json` and `/schema/token/v0.3.json` are pinned and never change.
 
+## Tools
+
+- **open-bounty-check 0.6.0** (`tools/check/`, 2026-10-15): a conformance checker for any store. It
+  runs the §4 discovery walk, validates against the live schema, verifies §9 signatures, and checks
+  the product-page carriers with `--product`. Exits 0 only on a valid object. Not yet published to
+  npm.
+
 ## 0.6 (2026-10-15)
 
 Completeness, trust and goal matching. All optional.
