@@ -55,12 +55,16 @@ async function get(fetchFn, url, limit, accept, userAgent, stopAtHeadEnd = false
         const { done, value } = await reader.read();
         if (done) break;
         size += value.byteLength;
-        if (size > limit) { await reader.cancel(); return { status: res.status, bytes: null, url: res.url || url, headers: res.headers, note: 'too large' }; }
         chunks.push(value);
+        // The head end is checked before the cap: once </head> has arrived the
+        // link carrier is in hand, however large the rest of the page is.
         if (dec) {
-          tail = (tail + dec.decode(value, { stream: true })).slice(-16384);
-          if (/<\/head\s*>/i.test(tail)) { await reader.cancel().catch(() => {}); break; }
+          // Each chunk decoded once; a short tail catches a tag split across chunks.
+          const seen = tail + dec.decode(value, { stream: true });
+          if (/<\/head\s*>/i.test(seen)) { await reader.cancel().catch(() => {}); break; }
+          tail = seen.slice(-16);
         }
+        if (size > limit) { await reader.cancel(); return { status: res.status, bytes: null, url: res.url || url, headers: res.headers, note: 'too large' }; }
       }
       bytes = new Uint8Array(size); let o = 0;
       for (const c of chunks) { bytes.set(c, o); o += c.byteLength; }
