@@ -61,6 +61,21 @@ membership unlocks, so an agent can put a points program beside a token program:
 unlock, and only `funded` is available. A token program can leave the block out and let agents
 derive it from its Token Profile. See [§7](SPEC.md#7-rewards-v05).
 
+## Completeness, trust and goals (v0.6)
+
+- **Who and on what terms:** `eligibility`, `conditions` (each with a sentence agents show),
+  `valid_from` / `valid_until`, `currency`, and `stacking`. `earn.display` may be given per
+  locale.
+- **Trust:** a rule for the on-page statement, so browser-driving agents find it as a labeled
+  region; `verification` on index and program listings; and **signed objects** (an Ed25519
+  detached JWS checked against `/.well-known/bounty-keys.json`). An invalid signature is a
+  hard stop.
+- **Goals:** perks and token unlocks may carry `fulfills` tags (`concert_tickets`,
+  `gym_membership`, `trade_school_tuition` …). Agents match a shopper's goals locally and offer
+  only funded items.
+
+See [CHANGELOG.md](CHANGELOG.md) and [SPEC §1.2, §2e, §3.2, §8, §9](SPEC.md).
+
 ## Declaring and settling
 
 The bounty object **declares**: buying here pays the shopper, and here's what they get. Paying
@@ -80,11 +95,13 @@ the contract doesn't need them.
 
 | Path | What it is |
 |---|---|
-| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.5**. |
+| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.6**. |
+| [`CHANGELOG.md`](CHANGELOG.md) | What each version added. Every 0.x is additive. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How a field gets added: a real program that needs it, a reject case and an accept case, and the rollout order. |
 | [`ADOPTERS.md`](ADOPTERS.md) | For programs, stores, app builders and agent builders: declaring vs settling, pinning, product-level scope, which agents read which carrier, the programs and loyalty integrations, and how to verify a store. |
 | [`SETTLEMENT.md`](SETTLEMENT.md) | The settlement contract (**v0.1**, draft): how a program credits a shopper for an order. The order event, the response, the states (received → pending → confirmed → reversed), and the refund hold. Schema: [`schema/settlement-event.schema.json`](schema/settlement-event.schema.json). |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. Also served at **`https://api.nctr.live/schema/bounty/v1.json`** (stable alias) and **`/v0.2.json`** (pinned) — implementers should fetch those rather than a raw GitHub URL. |
-| [`examples/`](examples/) | Valid objects: a token program, three cash programs (one stating only what its reward is worth), a gift with purchase, a pre-launch campaign tier, a tiered points program with a full `rewards` block, an alliance store that leaves `rewards` to its Token Profile, the minimum required fields, and an inactive store. |
+| [`examples/`](examples/) | Valid objects: a token program, three cash programs (one stating only what its reward is worth), a gift with purchase, a pre-launch campaign tier, a tiered points program with a full `rewards` block, an alliance store that leaves `rewards` to its Token Profile, v0.6 objects (a welcome offer with eligibility, conditions, dates and stacking; a localized points program in euros with goal tags; a verified index entry), a Token Profile with goal tags, the minimum required fields, and an inactive store. |
 | [`validate.mjs`](validate.mjs) | Validates every example, and asserts the schema **rejects** malformed objects. `npm install && npm test` |
 
 ## Reference implementation
