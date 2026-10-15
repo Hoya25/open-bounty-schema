@@ -1,4 +1,4 @@
-# Open Bounty Schema — v0.4 (Draft)
+# Open Bounty Schema — v0.5 (Draft)
 
 **A bounty is value paid to the shopper at the purchase.** Discounts lower the price. Reviews describe the product. A bounty pays the buyer — in points, tokens, credit, or cash — and until now there has been no standard way for a store to say so in a form software can read.
 
@@ -11,6 +11,12 @@ The machine-readable schema is served at **`https://api.nctr.live/schema/bounty/
 (pinned). Implementations should pin an exact version; agents may follow the alias.
 The Token Profile schema added in v0.3 is served at
 **`https://api.nctr.live/schema/token/v0.3.json`**.
+
+**v0.5** — adds one optional block to the bounty object: `rewards` (§7), which says what the
+reward is worth (`value`), how members climb (`ladder`), and what membership unlocks (`perks`, with
+the same three states as a Token Profile unlock). It lets an agent compare a points program with a
+token program on equal footing. v0.1–v0.4 objects remain valid and need no reissuing; an object
+without `rewards` states nothing about them, which is not the same as "none".
 
 **v0.4** — adds two optional fields to the bounty object: `scope` (§1.1), which says whether
 every purchase qualifies or only selected products, and `listed_by` (§3), which says who
@@ -68,6 +74,7 @@ Field rules:
 | `terms_url` | no | Program terms |
 | `scope` | no | v0.4. `store` (default) \| `selected` — whether every purchase qualifies or only some products (§1.1) |
 | `listed_by` | no | v0.4. `program` \| `index` \| `store` — who published this object (§3) |
+| `rewards` | no | v0.5. What the reward is worth, the tier ladder, and the perks, each perk with a state (§7) |
 | `updated_at` | yes | ISO date of last change |
 
 ### 1.1 Scope and the product-level rule (v0.4)
@@ -134,6 +141,7 @@ On Shopify specifically, `/apps/bounty/bounty.json` is the conventional path, an
 | `bounty.status_url` | url | status.url |
 | `bounty.scope` | single_line_text_field | scope (v0.4): `store` or `selected` |
 | `bounty.api` | url | api |
+| `bounty.rewards` | json | rewards (v0.5): the whole block, as JSON |
 | `bounty.updated_at` | date | updated_at |
 
 Keys drop the `bounty_` prefix that the JSON object carries — the `bounty` namespace already supplies it, so `bounty.schema_version` and `bounty_schema_version` name the same field.
@@ -220,6 +228,11 @@ An agent conforms if it resolves the object in this order, stopping at the first
 3. If neither resolves, treat the store as **unknown** — never as "no". A store that has not published is not a store that does not pay.
 
 Having resolved the object, an agent conforms if it shows `earn.display` without embellishment, and follows `api` for live detail when present.
+
+If the object carries `rewards` (§7), an agent conforms only if it shows `rewards.value` verbatim
+and computes nothing from it, and presents as available only perks whose `state` is `funded`.
+Where `rewards` is absent and `tokens` is present, it derives the same fields from the Token
+Profile (§7.4) rather than reporting that the program has no tiers or perks.
 
 If the object carries `scope: "selected"`, an agent conforms only if it checks the product page
 for a product-level declaration (§1.1) before telling a shopper that a particular product
@@ -339,3 +352,114 @@ GET /v1/tokens/{symbol}/unlocks    the unlocks feed; ?state= and ?rung= filter i
 `listed: false` means a token is reachable by direct URL but absent from the roster. It is how an issuer keeps a defined-but-undescribed token honest rather than hidden: the row exists, and nothing claims more about it than is true.
 
 An unknown symbol is a **404**, never a generic profile. Inventing a plausible answer for a token nobody issued is worse than saying no.
+
+---
+
+## 7. Rewards (v0.5)
+
+`earn.display` answers **"does buying here pay me?"** It doesn't answer the questions a shopper
+asks next: what is it worth, what do I get for staying, and what's actually available today.
+Without a shared shape for those answers, an agent can't put a points program beside a token
+program and compare them. It can only quote two sentences.
+
+v0.5 adds one optional block, `rewards`. It's additive: an object without it is unchanged and
+still valid, and **absent means not stated, never "none"**.
+
+```json
+"rewards": {
+  "value": "100 Points = $5 off at checkout.",
+  "ladder": {
+    "basis": "spend",
+    "unit": "USD",
+    "rungs": [
+      { "rung": "Starter", "threshold": 0, "note": "Where every member starts." },
+      { "rung": "Pro", "threshold": 250, "note": "Earns more per dollar than Starter." }
+    ]
+  },
+  "perks": [
+    { "name": "Free standard shipping", "description": "On orders of $75 or more.", "state": "funded" },
+    { "name": "Partner benefits", "state": "planned", "sponsor": null }
+  ],
+  "redeem_url": "https://athletics.example.com/pages/loyalty#redeem"
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `value` | ONE plain sentence, at most 200 characters, stating what the reward unit is worth |
+| `ladder.basis` | `earned` \| `held` \| `spend`: what a member climbs by |
+| `ladder.unit` | What `threshold` counts, in the program's own unit: an ISO 4217 code for `spend`, otherwise the unit's name |
+| `ladder.rungs[]` | `{ rung, label?, threshold, note? }`, in order; the first rung is the entry tier |
+| `perks[]` | `{ name, description?, state, sponsor? }`, where `state` is `planned` \| `committed` \| `funded` |
+| `redeem_url` | Where a member spends the reward |
+| `terms_url` | The reward's own terms, when they differ from the object's `terms_url` |
+
+Every member of the block is optional.
+
+### 7.1 `value`: display over math
+
+`value` is a sentence, not a number: "100 Points = $5 off at checkout."
+- There is **no rate field, on purpose**. A rate invites arithmetic, and arithmetic across programs
+  is where comparisons go wrong: a points ratio that only applies above a minimum, a coupon that
+  excludes gift cards, a token whose worth isn't a currency amount at all.
+- The sentence carries what the program can truthfully say, and an agent quotes it. An agent
+  **must not** compute a rate, a percentage or a dollar value from it, or from `value` together
+  with `earn.display`.
+- A program that can't state its unit's worth truthfully, in a sentence it would stand behind,
+  omits `value`.
+
+### 7.2 `ladder`
+
+`ladder` has the same shape as the Token Profile's `status_ladder` (§6.2), with one addition:
+`unit`, because a store ladder is often measured in money, and "250" isn't a threshold until it
+says which currency.
+- `rungs` may be **any length**, with **no enum of names**. A consumer must not assume a rung
+  count, a set of names, or a set of thresholds (§6.4).
+- `basis` is a closed enum of three, because an agent must say what a member climbs by.
+- `threshold` is a number in `unit`. Without a `unit`, an agent must not state a threshold as an
+  amount of money.
+- A rung `note` says what a rung does in words. It doesn't carry a per-rung rate, for the same
+  reason as §7.1.
+
+### 7.3 `perks` and their states
+
+A perk carries the same closed `state` as a Token Profile unlock (§6.3), and the same rule
+governs it:
+
+| State | May an agent present it as available? |
+|---|---|
+| `planned` | **No. Never.** |
+| `committed` | **No.** Say "committed" |
+| `funded` | **Yes** |
+
+- **A `planned` perk never names a sponsor.** The schema enforces it: a planned perk's
+  `sponsor` must be null or absent.
+- A program states a perk as `funded` only where it is live for members now.
+- An integration that reads a program from outside, rather than the program publishing itself,
+  **omits a perk whose state it can't establish**. It never guesses one.
+
+### 7.4 Token programs: derive, don't copy
+
+§6.1 says a store never embeds an unlock catalog, and that stays true. For a token program,
+`rewards` **MAY be omitted** whenever `tokens` is present. An agent **SHOULD** derive the same
+fields from the Token Profile:
+
+| `rewards` | From the Token Profile |
+|---|---|
+| `ladder.basis` | `status_ladder.basis` |
+| `ladder.unit` | the token's `symbol` |
+| `ladder.rungs[]` | `status_ladder.rungs[]`: `rung`, `label`, `threshold` (a rung's `unlocks` ids are not copied) |
+| `perks[]` | `unlocks[]`: `name`, `description`, `state`, and `sponsor` under the same rule |
+| `value` | No field maps to it. Use it only if the issuer publishes a sentence that meets §7.1 |
+| `earn.display` | stays in `earn`: the store object's own sentence |
+
+A **program-hosted** object (`listed_by: "program"` or `"index"`, served live from the program's
+API) may include `rewards` derived this way at request time, because it can't go stale. A
+**store-hosted** object for a token program should leave it out and let agents follow `tokens`.
+
+### 7.5 Store-hosted points programs
+
+When the store is the program, as with a points program run on the store's own loyalty app,
+`rewards` is the program describing itself. It goes stale the same way `earn.display` does, when
+the program changes and the object isn't re-published. Integrations that compose it from the
+program's live data should re-read it whenever they re-publish `earn.display`.

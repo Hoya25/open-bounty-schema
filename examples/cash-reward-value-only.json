@@ -1,0 +1,19 @@
+{
+  "bounty_schema_version": "0.5",
+  "active": true,
+  "program": {
+    "name": "Example Home Goods Cash Rewards",
+    "url": "https://homegoods.example.com/rewards"
+  },
+  "earn": {
+    "display": "Members get a cash reward of 3% of every order, paid to their linked account after the return window closes.",
+    "denomination": "USD",
+    "type": "cash"
+  },
+  "rewards": {
+    "value": "Rewards are paid in US dollars: $1 earned is $1 paid to your linked account."
+  },
+  "listed_by": "store",
+  "terms_url": "https://homegoods.example.com/rewards/terms",
+  "updated_at": "2026-10-15"
+}
