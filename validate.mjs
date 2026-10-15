@@ -51,6 +51,31 @@ const mustReject = [
   ['unknown listed_by', { bounty_schema_version: '0.4', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, listed_by: 'agent', updated_at: '2026-01-01' }]
 ];
 
+// v0.5 `rewards`. The perk state is the same closed enum as a Token Profile
+// unlock, and it is the field an agent decides "available or not" on, so a
+// perk without one, or with an invented one, must not validate.
+const v05 = (rewards) => ({ bounty_schema_version: '0.5', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, rewards, updated_at: '2026-01-01' });
+mustReject.push(
+  ['rewards: unknown perk state', v05({ perks: [{ name: 'Free shipping', state: 'live' }] })],
+  ['rewards: perk missing state', v05({ perks: [{ name: 'Free shipping' }] })],
+  ['rewards: planned perk naming a sponsor', v05({ perks: [{ name: 'Partner night', state: 'planned', sponsor: 'Example Brand' }] })],
+  ['rewards: unknown ladder basis', v05({ ladder: { basis: 'visits', rungs: [{ rung: 'A', threshold: 0 }] } })],
+  ['rewards: rung without threshold', v05({ ladder: { basis: 'spend', rungs: [{ rung: 'A' }] } })],
+  ['rewards: negative threshold', v05({ ladder: { basis: 'spend', rungs: [{ rung: 'A', threshold: -1 }] } })],
+  ['rewards: a rate field', v05({ value: '100 points = $5 off.', rate: 0.05 })],
+  ['rewards: value over 200 characters', v05({ value: 'x'.repeat(201) })]
+);
+
+// And it must accept what it is for: a ladder of any length with any names,
+// a funded perk that names its sponsor, and a block with only a value.
+const mustAccept = [
+  ['rewards: one-rung ladder, invented names, decimal threshold', v05({ ladder: { basis: 'earned', unit: 'stars', rungs: [{ rung: 'Seedling', threshold: 12.5 }] } })],
+  ['rewards: funded perk with a sponsor', v05({ perks: [{ name: 'Partner night', state: 'funded', sponsor: 'Example Brand' }] })],
+  ['rewards: committed perk, no description', v05({ perks: [{ name: 'Members dinner', state: 'committed' }] })],
+  ['rewards: value only', v05({ value: '100 points = $5 off at checkout.' })],
+  ['rewards: empty block (nothing stated)', v05({})]
+];
+
 for (const [label, doc] of mustReject) {
   if (validate(doc)) {
     failed++;
@@ -59,14 +84,24 @@ for (const [label, doc] of mustReject) {
     console.log(`  PASS  correctly rejects: ${label}`);
   }
 }
+for (const [label, doc] of mustAccept) {
+  if (validate(doc)) {
+    console.log(`  PASS  accepts ${label}`);
+  } else {
+    failed++;
+    console.log(`  FAIL  wrongly REJECTED ${label}`);
+    for (const e of validate.errors) console.log(`          ${e.instancePath || '/'} ${e.message}`);
+  }
+}
 
 // Every 0.x version stays valid: v0.2 added a discovery order, v0.3 the
-// optional `tokens`, v0.4 the optional `scope` and `listed_by`. Agents must
+// optional `tokens`, v0.4 the optional `scope` and `listed_by`, v0.5 the
+// optional `rewards`. Agents must
 // accept all of them, so the schema must too. The example set is deliberately
-// mixed across 0.1–0.4, so this is proven by the files above as well as
+// mixed across 0.1–0.5, so this is proven by the files above as well as
 // asserted here.
 const base = JSON.parse(readFileSync(join(dir, 'minimal.json'), 'utf8'));
-for (const version of ['0.1', '0.2', '0.3', '0.4']) {
+for (const version of ['0.1', '0.2', '0.3', '0.4', '0.5']) {
   if (validate({ ...base, bounty_schema_version: version })) {
     console.log(`  PASS  accepts bounty_schema_version ${version}`);
   } else {
@@ -79,7 +114,7 @@ const versions = new Set(
   readdirSync(dir).filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')).bounty_schema_version)
 );
-if (['0.1', '0.2', '0.3', '0.4'].every((v) => versions.has(v))) {
+if (['0.1', '0.2', '0.3', '0.4', '0.5'].every((v) => versions.has(v))) {
   console.log('  PASS  example set covers all published versions');
 } else {
   failed++;
@@ -95,6 +130,18 @@ if (v03.bounty_schema_version === '0.3' && !('scope' in v03) && !('listed_by' in
 } else {
   failed++;
   console.log('  FAIL  the v0.3 example no longer validates as published');
+}
+
+// v0.5 is additive the same way: every example published before it carries no
+// `rewards`, and each must still validate unchanged.
+const preV05 = readdirSync(dir).filter((f) => f.endsWith('.json'))
+  .map((f) => [f, JSON.parse(readFileSync(join(dir, f), 'utf8'))])
+  .filter(([, d]) => d.bounty_schema_version !== '0.5');
+if (preV05.length && preV05.every(([, d]) => !('rewards' in d) && validate(d))) {
+  console.log(`  PASS  ${preV05.length} pre-v0.5 examples without rewards still validate`);
+} else {
+  failed++;
+  console.log('  FAIL  a pre-v0.5 example carries rewards or no longer validates');
 }
 
 // ── v0.3: Token Profiles ────────────────────────────────────────────────────

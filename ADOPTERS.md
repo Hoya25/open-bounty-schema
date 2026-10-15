@@ -39,7 +39,7 @@ that settles it, an index acting on the store's behalf, or the store itself.
 ### How stable is the spec? What should I pin?
 
 - **0.x iterates in the open, additively.** Every 0.x object stays valid: a v0.1 object needs
-  nothing to validate under v0.4. New fields are optional and need a real program that needs them.
+  nothing to validate under v0.5. New fields are optional and need a real program that needs them.
 - **Two schema addresses:**
   - `https://api.nctr.live/schema/bounty/v1.json` is the **stable alias**. It tracks the latest
     0.x.
@@ -62,6 +62,20 @@ product-level declaration before telling a shopper that a product earns. A produ
 
 `scope: "store"`, the default, means every purchase qualifies. Product-level declarations can still
 refine the sentence for a product, but never narrow a store-wide claim.
+
+### How do I say what my reward is worth? (v0.5)
+
+Add the optional `rewards` block ([§7](SPEC.md#7-rewards-v05)):
+- **`value`**: one sentence saying what your unit is worth: "100 points = $5 off at checkout."
+  There's no rate field. Agents quote the sentence and compute nothing from it.
+- **`ladder`**: your tiers in order, with `basis` (`earned`, `held` or `spend`), the `unit`
+  thresholds are counted in, and the thresholds themselves. Any number of tiers, any names.
+- **`perks`**: what membership unlocks, each with `state`: `planned`, `committed` or `funded`.
+  Agents present only `funded` perks as available, and a `planned` perk never names a sponsor.
+
+Leave out anything you can't state truthfully; absent means not stated, never "none". A token
+program can omit the block and let agents derive it from the Token Profile (§7.4). An object
+your store hosts should do that, because a copy on the store is the one that goes stale.
 
 ### Which agents read which carrier?
 
@@ -119,13 +133,24 @@ dollars, has nothing to redeem), they say why and publish nothing.
 | **Smile.io** | the storefront's Smile embed and Smile's storefront SDK endpoints | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **Yotpo Loyalty & Referrals** | the loyalty loader on the storefront: the store-wide purchase campaign, tiers, redemptions | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **LoyaltyLion** | the LoyaltyLion SDK's start script (whether the program is on) and site configuration | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
+| **Okendo Loyalty** | the loyalty settings block Okendo renders into the storefront, and the program's public storefront endpoints | Bounty app for Shopify (not yet listed in the App Store). Okendo runs only on Shopify. |
+
+All four also compose the v0.5 **`rewards`** block from the same live data:
+- **value:** from a redemption rule with a stated worth (money off, percent off, store credit).
+- **ladder:** from the tiers, entry tier first.
+- **perks:** the entry tier's perks, marked `funded` only where the program shows them as live
+  for that tier.
+
+If any part can't be read truthfully, the object publishes without `rewards` and says why. The
+earn sentence is unaffected. Free products and free shipping state no worth, so a program that
+redeems only for those publishes no `value`, and therefore no block.
 
 \* Smile.io doesn't support WooCommerce. Yotpo doesn't support new WooCommerce accounts.
 LoyaltyLion doesn't list WooCommerce as an install target. On WooCommerce these options read
 existing or custom installs only, and say so.
 
-Both the Shopify app and the WooCommerce plugin also offer **"Describe your own reward"**: any
-program, in the merchant's own words, checked against the schema.
+The WooCommerce plugin also offers **"Describe your own reward"**: any program, in the merchant's
+own words, checked against the schema. The Shopify app doesn't have this option yet.
 
 ---
 
