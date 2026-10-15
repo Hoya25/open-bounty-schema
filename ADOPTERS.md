@@ -39,7 +39,7 @@ that settles it, an index acting on the store's behalf, or the store itself.
 ### How stable is the spec? What should I pin?
 
 - **0.x iterates in the open, additively.** Every 0.x object stays valid: a v0.1 object needs
-  nothing to validate under v0.5. New fields are optional and need a real program that needs them.
+  nothing to validate under v0.6. New fields are optional and need a real program that needs them.
 - **Two schema addresses:**
   - `https://api.nctr.live/schema/bounty/v1.json` is the **stable alias**. It tracks the latest
     0.x.
@@ -77,6 +77,22 @@ Leave out anything you can't state truthfully; absent means not stated, never "n
 program can omit the block and let agents derive it from the Token Profile (§7.4). An object
 your store hosts should do that, because a copy on the store is the one that goes stale.
 
+### What else should my object say? (v0.6)
+
+Say, in structure, what your sentence would otherwise carry in prose ([§1.2](SPEC.md#12-completeness-fields-v06)):
+- **`eligibility`**: who it's for (`members`, `new_subscribers`, `anyone`, …), with a `join_url`
+  if shoppers can sign up.
+- **`conditions`**: each with a `note` that agents show as written: a minimum order, once per
+  customer, subscription orders only, points pending or expiring.
+- **`valid_from` / `valid_until`**: outside them, agents treat the bounty as inactive.
+- **`currency`**: any ISO 4217 code. A sentence in pounds or euros is fine.
+- **`stacking`**: whether it combines with other discounts.
+- **`earn.display`**: may be an object keyed by locale with a required `default`. Agents pinned
+  to v0.5 or earlier expect a string.
+
+An index or program publishing on a store's behalf adds **`verification`** to say how it knows
+the store pays (§3.2), and may **sign** what it serves (§9).
+
 ### Which agents read which carrier?
 
 This is the honest picture as of October 2026. Each cell says how we know: **observed** (tested
@@ -103,6 +119,36 @@ What this means in practice:
   store-facts surface, paste the sentence there verbatim, and keep the machine-readable carriers
   authoritative.
 
+### How do I reach agents that shop in a browser, like Muse? (the reach step)
+
+Agents that drive a real browser read the page's accessibility tree, not its head markup or
+JSON-LD. Two steps put the bounty where they read:
+
+1. **The visible statement** ([§2e](SPEC.md#2-the-carriers)). Render `earn.display` verbatim
+   inside an element with `data-bounty-display` and an `aria-label`, just before the
+   add-to-cart form:
+
+   ```html
+   <section data-bounty-display aria-label="Rewards on this purchase">
+     <p>Members earn 1 Point per dollar, redeemable at checkout.</p>
+   </section>
+   ```
+
+   The Bounty app for Shopify renders it by default once its app embed is on; merchants can
+   turn it off. The WooCommerce plugin renders it after the price, also on by default.
+2. **A Knowledge Base Q&A.** Shopify's Knowledge Base app is a store-facts surface Shopify
+   documents as a source agents read for pre-purchase questions. Add one entry:
+   - **Question:** *Do I earn rewards when I buy here?*
+   - **Answer:** your `earn.display` sentence, verbatim, then each condition's `note`, then
+     *"Details: https://STORE/apps/bounty/bounty.json"* (or your well-known URL).
+
+   Keep it word for word. If the sentence changes, update the entry. An agent quoting a stale
+   answer is the failure this spec exists to prevent. This step is documented by the platform
+   and untested for this sentence; agents may paraphrase it.
+
+Neither step replaces the machine-readable carriers. They put the same sentence where a
+browser-driving agent looks.
+
 ### What does an agent do if it finds nothing?
 
 It reports the store as **unknown, never as "no"**. A store that hasn't published is not a store
@@ -125,8 +171,9 @@ To add a program, open a pull request with your program object's URL and how sto
 Stores that already run a loyalty program can publish a bounty without typing a sentence. These
 integrations read the program's **live earning rule** and compose
 *"Members earn N <points name> per dollar, redeemable at checkout."* from it, with the store as the
-program. If the rule can't be read (the program is off, has no store-wide purchase rule, isn't in
-dollars, has nothing to redeem), they say why and publish nothing.
+program. Since v0.6 any currency works: *"… per £1 …"*, with `currency` set. If the rule can't be
+read (the program is off, has no store-wide purchase rule, has nothing to redeem), they say why
+and publish nothing.
 
 | Loyalty program | Reads | Available in |
 |---|---|---|
@@ -134,6 +181,7 @@ dollars, has nothing to redeem), they say why and publish nothing.
 | **Yotpo Loyalty & Referrals** | the loyalty loader on the storefront: the store-wide purchase campaign, tiers, redemptions | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **LoyaltyLion** | the LoyaltyLion SDK's start script (whether the program is on) and site configuration | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **Okendo Loyalty** | the loyalty settings block Okendo renders into the storefront, and the program's public storefront endpoints | Bounty app for Shopify (not yet listed in the App Store). Okendo runs only on Shopify. |
+| **Klaviyo welcome offer** | the coupon block in the store's live Klaviyo signup forms, then that discount's own fields in Shopify | Bounty app for Shopify (not yet listed in the App Store). The sentence reads *"New email subscribers get 15% off one order …"* |
 
 All four also compose the v0.5 **`rewards`** block from the same live data:
 - **value:** from a redemption rule with a stated worth (money off, percent off, store credit).
@@ -142,7 +190,17 @@ All four also compose the v0.5 **`rewards`** block from the same live data:
   for that tier.
 
 If any part can't be read truthfully, the object publishes without `rewards` and says why. The
-earn sentence is unaffected. Free products and free shipping state no worth, so a program that
+earn sentence is unaffected.
+
+They also publish the v0.6 fields the program states:
+
+| Integration | `eligibility` | `conditions` | Validity / stacking |
+|---|---|---|---|
+| Smile.io | members, with the program's sign-up URL | points expire after a period without activity | — |
+| Yotpo | members, with the store's registration URL | minimum spend, reward delay | campaign end → `valid_until` |
+| LoyaltyLion | members, with the program's sign-up URL | points expire after a period without activity | — |
+| Okendo | members, with the loyalty page | points pending for N days | — |
+| Klaviyo | new_subscribers | minimum order or quantity, once per customer, subscription orders only, end date | `valid_from`, `valid_until`, `stacking` from the discount's combines-with settings | Free products and free shipping state no worth, so a program that
 redeems only for those publishes no `value`, and therefore no block.
 
 \* Smile.io doesn't support WooCommerce. Yotpo doesn't support new WooCommerce accounts.
@@ -211,3 +269,21 @@ walk merch.nctr.live
 
 Against `merch.nctr.live` this resolves at step 2. Against `api.nctr.live` it resolves at step 1.
 Against a store that has published nothing, it ends at "unknown".
+
+**6. A signed object (v0.6 §9)**
+
+```sh
+curl -sD /tmp/h.txt https://api.nctr.live/.well-known/bounty.json -o /tmp/obj.json
+curl -s https://api.nctr.live/.well-known/bounty-keys.json -o /tmp/keys.json
+node -e '
+const fs = require("fs"), { createPublicKey, verify } = require("crypto");
+const body = fs.readFileSync("/tmp/obj.json");
+const sig = (fs.readFileSync("/tmp/h.txt", "utf8").match(/^bounty-signature: (\S+)/im) || [])[1];
+if (!sig) { console.log("unsigned"); process.exit(0); }
+const [h, , s] = sig.split(".");
+const hdr = JSON.parse(Buffer.from(h, "base64url"));
+const k = JSON.parse(fs.readFileSync("/tmp/keys.json")).keys.find((x) => x.kid === hdr.kid);
+const ok = k && hdr.alg === "EdDSA" && verify(null, Buffer.from(h + "." + body.toString("base64url")),
+  createPublicKey({ key: { kty: k.kty, crv: k.crv, x: k.x }, format: "jwk" }), Buffer.from(s, "base64url"));
+console.log(ok ? "signed (kid " + hdr.kid + ")" : "invalid: a hard stop");'
+```

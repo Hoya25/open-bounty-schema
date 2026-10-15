@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://api.nctr.live/schema/token/v0.3.json",
+  "$id": "https://api.nctr.live/schema/token/v1.json",
   "title": "Open Bounty Schema — Token Profile",
   "description": "Describes a token a bounty can be paid in, and everything holding it unlocks for the shopper. Added in v0.3. A program with an unbounded and growing set of tokens must be able to add one without a schema release, so this schema validates the SHAPE of a profile and never enumerates known symbols.",
   "type": "object",
@@ -16,7 +16,9 @@
     "token_schema_version": {
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+$",
-      "examples": ["0.3"]
+      "examples": [
+        "0.3"
+      ]
     },
     "symbol": {
       "type": "string",
@@ -39,31 +41,66 @@
     "lifecycle": {
       "type": "string",
       "description": "Where the token is in its life. An open vocabulary by design: an issuer may define its own stages, and a consumer must not assume this set. In the reference implementation, `live` is set only when the token actually launches and is the one value a member-facing surface may treat as real; a `paused` token is unlisted, stays reachable by URL, and every unlock beneath it reads as `planned`.",
-      "examples": ["design", "launching", "live", "paused"]
+      "examples": [
+        "design",
+        "launching",
+        "live",
+        "paused"
+      ]
     },
     "issuer": {
       "type": "object",
-      "required": ["name", "url"],
+      "required": [
+        "name",
+        "url"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "url": { "type": "string", "format": "uri" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     },
     "engine": {
       "description": "The programme, cause or category this token belongs to. Null for a network-wide token that belongs to none.",
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "additionalProperties": false,
       "properties": {
-        "slug": { "type": "string" },
-        "name": { "type": "string" },
-        "category": { "type": ["string", "null"] },
-        "url": { "type": ["string", "null"], "format": "uri" }
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
       }
     },
     "earn": {
       "description": "How the token is earned. Null while no member-facing sentence has been written — which is the honest state for a token that is not yet listed.",
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "additionalProperties": false,
       "properties": {
         "display": {
@@ -72,23 +109,37 @@
           "maxLength": 200,
           "description": "ONE human sentence, shown verbatim by agents. Capped to keep it a sentence rather than a pitch."
         },
-        "type": { "type": "string", "enum": ["points", "token", "cash", "other"] },
+        "type": {
+          "type": "string",
+          "enum": [
+            "points",
+            "token",
+            "cash",
+            "other"
+          ]
+        },
         "also_earned_by": {
           "type": "array",
           "description": "Short phrases for non-purchase earning. Never a rate.",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "status_ladder": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rungs"],
+      "required": [
+        "rungs"
+      ],
       "properties": {
         "basis": {
           "type": "string",
           "description": "What the ladder is measured against.",
-          "examples": ["held"]
+          "examples": [
+            "held"
+          ]
         },
         "note": {
           "type": "string",
@@ -96,7 +147,10 @@
           "description": "What this ladder does and does not do. Where a programme has a separate earning multiplier, this must say the ladder is not it — a ladder of thresholds with no such statement invites the reader to infer that holding multiplies earning."
         },
         "earn_ladder_url": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "uri"
         },
         "rungs": {
@@ -104,18 +158,29 @@
           "description": "The ladder, in order. ANY length: no minItems and no enum of rung names, because a ladder is per-token and overridable. A consumer must not assume a rung count, a set of names, or a set of thresholds.",
           "items": {
             "type": "object",
-            "required": ["rung", "threshold"],
+            "required": [
+              "rung",
+              "threshold"
+            ],
             "additionalProperties": false,
             "properties": {
-              "rung": { "type": "string", "minLength": 1 },
+              "rung": {
+                "type": "string",
+                "minLength": 1
+              },
               "label": {
                 "type": "string",
                 "description": "The member-facing name of this rung. Derived by the issuer, not authored per row."
               },
-              "threshold": { "type": "integer", "minimum": 0 },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0
+              },
               "unlocks": {
                 "type": "array",
-                "items": { "type": "string" }
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -124,16 +189,27 @@
     },
     "unlocks": {
       "type": "array",
-      "items": { "$ref": "#/$defs/unlock" }
+      "items": {
+        "$ref": "#/$defs/unlock"
+      }
     },
     "unlocks_summary": {
       "type": "object",
       "description": "Counts by state, so an agent can tell at a glance whether anything is actually available without walking the array.",
       "additionalProperties": false,
       "properties": {
-        "planned": { "type": "integer", "minimum": 0 },
-        "committed": { "type": "integer", "minimum": 0 },
-        "funded": { "type": "integer", "minimum": 0 }
+        "planned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "committed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "funded": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "unlocks_url": {
@@ -141,8 +217,17 @@
       "format": "uri",
       "description": "The live unlocks feed. Authoritative over the embedded unlocks array."
     },
-    "api": { "type": "string", "format": "uri" },
-    "terms_url": { "type": ["string", "null"], "format": "uri" },
+    "api": {
+      "type": "string",
+      "format": "uri"
+    },
+    "terms_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
     "updated_at": {
       "type": "string",
       "format": "date",
@@ -152,28 +237,72 @@
   "$defs": {
     "unlock": {
       "type": "object",
-      "required": ["name", "state"],
+      "required": [
+        "name",
+        "state"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string" },
-        "rung": { "type": ["string", "null"] },
-        "label": { "type": ["string", "null"] },
-        "name": { "type": "string", "minLength": 1 },
-        "description": { "type": ["string", "null"] },
+        "id": {
+          "type": "string"
+        },
+        "rung": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "state": {
           "type": "string",
           "description": "planned: in design, and NEVER presentable as available. committed: a written commitment from the partner is on file, but it is not yet available. funded: money is behind it and it is available. This IS a closed enum, deliberately — unlike symbols and rungs, the three states are the load-bearing honesty guarantee of the whole object, and a programme inventing a fourth would break what an agent can rely on.",
-          "enum": ["planned", "committed", "funded"]
+          "enum": [
+            "planned",
+            "committed",
+            "funded"
+          ]
         },
-        "state_note": { "type": "string" },
+        "state_note": {
+          "type": "string"
+        },
         "opens_at": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date",
           "description": "Only where a date is genuinely known. Null is the honest default."
         },
         "sponsor": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Named ONLY where that partner granted attribution and the unlock has reached committed or funded. A planned unlock must never name a partner: doing so asserts a relationship that does not exist."
+        },
+        "fulfills": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,40}$"
+          },
+          "description": "Added in v0.6. Goal tags this unlock serves (bounty spec §8): open vocabulary, starter list in the spec. Agents match locally and present only funded unlocks as available."
         }
       }
     }

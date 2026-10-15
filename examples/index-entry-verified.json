@@ -1,0 +1,24 @@
+{
+  "bounty_schema_version": "0.6",
+  "active": true,
+  "program": {
+    "name": "NCTR Alliance",
+    "url": "https://themall.nctr.live"
+  },
+  "earn": {
+    "display": "Members earn NCTR on purchases here — earning grows with status.",
+    "denomination": "NCTR",
+    "type": "token"
+  },
+  "tokens": [
+    "https://api.nctr.live/v1/tokens/nctr"
+  ],
+  "api": "https://api.nctr.live/v1/bounties/example-merchant",
+  "listed_by": "program",
+  "verification": {
+    "method": "program_data",
+    "checked_at": "2026-10-15T18:00:00Z",
+    "by": "https://api.nctr.live"
+  },
+  "updated_at": "2026-10-15"
+}
