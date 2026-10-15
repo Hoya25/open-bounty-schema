@@ -10,6 +10,9 @@ every 0.x. The stable schema alias `https://api.nctr.live/schema/bounty/v1.json`
   runs the §4 discovery walk, validates against the live schema, verifies §9 signatures, and checks
   the product-page carriers with `--product`. Exits 0 only on a valid object. Run it from GitHub
   with `npx github:Hoya25/open-bounty-schema <domain>`; it isn't on the npm registry.
+- **Hosted checker** (2026-10-15): `GET https://api.nctr.live/check?domain=<domain>` returns the same
+  result as JSON, cached 5 minutes and rate-limited per address. `GET /badge/<domain>.svg` shows
+  "Bounty: verified" (green) or "Bounty: unknown" (grey), never "no".
 
 ## 0.6 (2026-10-15)
 

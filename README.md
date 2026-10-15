@@ -76,15 +76,42 @@ derive it from its Token Profile. See [§7](SPEC.md#7-rewards-v05).
 
 See [CHANGELOG.md](CHANGELOG.md) and [SPEC §1.2, §2e, §3.2, §8, §9](SPEC.md).
 
-## Check a store
+## Check any store
+
+**On the command line** ([open-bounty-check](tools/check/), run from GitHub; nothing is on the npm
+registry):
 
 ```sh
 npx github:Hoya25/open-bounty-schema shop.example
 ```
 
-This runs [open-bounty-check](tools/check/). It does the spec's discovery walk, validates against
-the live schema, verifies a signature when present, and reports each carrier and the `earn.display`
-sentence. It exits 0 only on a valid object.
+**Over HTTP**: the same code, hosted:
+
+```
+GET https://api.nctr.live/check?domain=shop.example
+GET https://api.nctr.live/check?domain=shop.example&product=https://shop.example/products/some-product
+```
+
+Both run the spec's discovery walk, validate against the live schema, verify a signature when
+present, and report each carrier and the `earn.display` sentence. The result's `status` is `valid`,
+`invalid` or `unknown`, never "no". The CLI exits 0 only on `valid`.
+
+- Any store: the domain's own published object is what's checked, not an index's record of it.
+- Results are cached for 5 minutes, and each address is rate-limited.
+- Only public hostnames are accepted.
+
+**A badge** for a store's site or README:
+
+```
+https://api.nctr.live/badge/shop.example.svg
+```
+
+- **Green "Bounty: verified"** when the store publishes a valid object.
+- **Grey "Bounty: unknown"** otherwise. It never says "no".
+
+```html
+<img src="https://api.nctr.live/badge/shop.example.svg" alt="Bounty status">
+```
 
 ## Declaring and settling
 
