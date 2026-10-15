@@ -1,0 +1,28 @@
+{
+  "bounty_schema_version": "0.6",
+  "active": true,
+  "program": {
+    "name": "Example Apparel",
+    "url": "https://apparel.example.com/"
+  },
+  "earn": {
+    "display": "New email subscribers get 15% off one order, on orders of $50 or more.",
+    "type": "other"
+  },
+  "currency": "USD",
+  "eligibility": {
+    "who": "new_subscribers",
+    "join_url": "https://apparel.example.com/pages/join",
+    "note": "For new email subscribers."
+  },
+  "conditions": [
+    { "type": "min_order", "value": 50, "note": "On orders of $50 or more." },
+    { "type": "once_per_customer", "note": "One use per customer." },
+    { "type": "limited_time", "note": "Through Dec 31, 2026." }
+  ],
+  "valid_from": "2026-10-01",
+  "valid_until": "2026-12-31T23:59:59Z",
+  "stacking": { "combinable": false, "note": "Doesn't combine with other discounts." },
+  "listed_by": "store",
+  "updated_at": "2026-10-15"
+}

@@ -1,0 +1,23 @@
+{
+  "token_schema_version": "0.6",
+  "symbol": "TRAILHEAD",
+  "name": "Trailhead",
+  "canonical_url": "https://tokens.example/v1/tokens/trailhead",
+  "listed": true,
+  "lifecycle": "live",
+  "issuer": { "name": "Example Token Program", "url": "https://tokens.example" },
+  "status_ladder": {
+    "basis": "held",
+    "note": "Status in this world. It is not an earning multiplier.",
+    "rungs": [
+      { "rung": "Scout", "threshold": 500 },
+      { "rung": "Guide", "threshold": 2500 }
+    ]
+  },
+  "unlocks": [
+    { "id": "u_th_01", "rung": "Scout", "name": "Gear library", "description": "Borrow tents and packs from partner outfitters.", "state": "funded", "sponsor": "Example Outfitters", "fulfills": ["outdoor_gear"] },
+    { "id": "u_th_02", "rung": "Guide", "name": "Youth league fees", "description": "League fees for a young athlete, in design.", "state": "planned", "sponsor": null, "fulfills": ["youth_sports"] }
+  ],
+  "unlocks_summary": { "planned": 1, "committed": 0, "funded": 1 },
+  "updated_at": "2026-10-15"
+}

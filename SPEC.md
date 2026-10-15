@@ -1,4 +1,4 @@
-# Open Bounty Schema — v0.5 (Draft)
+# Open Bounty Schema — v0.6 (Draft)
 
 **A bounty is value paid to the shopper at the purchase.** Discounts lower the price. Reviews describe the product. A bounty pays the buyer — in points, tokens, credit, or cash — and until now there has been no standard way for a store to say so in a form software can read.
 
@@ -11,6 +11,15 @@ The machine-readable schema is served at **`https://api.nctr.live/schema/bounty/
 (pinned). Implementations should pin an exact version; agents may follow the alias.
 The Token Profile schema added in v0.3 is served at
 **`https://api.nctr.live/schema/token/v0.3.json`**.
+
+**v0.6** — completeness, trust and goal matching. All new fields are optional; every v0.1–v0.5
+object stays valid.
+- **Completeness:** `eligibility`, `conditions`, `valid_from`/`valid_until` (an object outside its
+  window is inactive), `currency`, `stacking`, and `earn.display` MAY be an object keyed by locale
+  with a required `default` (§1.2).
+- **Trust:** a visible-carrier rule for the on-page statement (§2e), `verification` on objects an
+  index or program publishes (§3.2), and signed objects (§9).
+- **Goal matching:** perks and Token Profile unlocks MAY carry `fulfills` goal tags (§8).
 
 **v0.5** — adds one optional block to the bounty object: `rewards` (§7), which says what the
 reward is worth (`value`), how members climb (`ladder`), and what membership unlocks (`perks`, with
@@ -75,6 +84,12 @@ Field rules:
 | `scope` | no | v0.4. `store` (default) \| `selected` — whether every purchase qualifies or only some products (§1.1) |
 | `listed_by` | no | v0.4. `program` \| `index` \| `store` — who published this object (§3) |
 | `rewards` | no | v0.5. What the reward is worth, the tier ladder, and the perks, each perk with a state (§7) |
+| `currency` | no | v0.6. ISO 4217 code the earn and any amounts are stated in |
+| `eligibility` | no | v0.6. `{ who, join_url?, note? }`. Who the bounty is for (§1.2) |
+| `conditions` | no | v0.6. `[ { type, value?, note } ]`. Conditions, each with a sentence (§1.2) |
+| `valid_from` / `valid_until` | no | v0.6. ISO date or date-time. Outside the window the object is inactive |
+| `stacking` | no | v0.6. `{ combinable, note? }`. Whether it combines with other offers |
+| `verification` | no | v0.6. `{ method, checked_at, by }` on objects an index or program publishes (§3.2) |
 | `updated_at` | yes | ISO date of last change |
 
 ### 1.1 Scope and the product-level rule (v0.4)
@@ -108,9 +123,40 @@ claim.
 
 Design principles: **display over math** (a truthful sentence beats a rate field that invites false precision), **liveness over copies** (the `api` field is authoritative; embedded copies are hints), and **claims must survive scrutiny** (publish only what the program actually delivers today).
 
-## 2. The four carriers
+### 1.2 Completeness fields (v0.6)
 
-The same object travels four ways, so every kind of agent finds it:
+`earn.display` stays the one sentence an agent shows. The v0.6 fields say, in structure, what
+that sentence would otherwise have to carry in prose: who it's for, what conditions apply, and
+when it holds.
+
+- **`eligibility`**: `who` is an open vocabulary. The starter terms are `anyone`, `members`,
+  `new_customers`, `new_subscribers` and `group`. `join_url` is where a shopper becomes
+  eligible, and `note` is one sentence, shown as written.
+  - An agent that doesn't recognise a `who` term says the bounty is limited and shows `note`.
+  - Absent means not stated, which is **not** the same as `anyone`.
+- **`conditions`**: each has a `type` (open vocabulary), an optional machine-readable `value`
+  (a minimum in `currency`, a number of days; never a rate), and a required `note`, which is
+  what an agent says.
+  - Starter types: `min_order`, `excluded_categories`, `subscription_only`, `first_order`,
+    `once_per_customer`, `limited_time`, `pending_period`, `points_expire`.
+- **`valid_from` / `valid_until`**: ISO dates or date-times. Before `valid_from` or after
+  `valid_until`, an agent treats the object as **inactive**, whatever `active` says.
+- **`currency`**: the ISO 4217 code that every amount in the object, including the sentence's,
+  is stated in. A program that earns in more than one currency publishes one object per
+  currency.
+- **`stacking`**: `combinable` says whether the bounty combines with other discounts or offers,
+  and `note` says it in words.
+- **Localized `earn.display`**: instead of a string, an object keyed by lower-case BCP 47
+  locale, with a required `default`:
+  `{ "default": "Members earn 5 points per €1…", "fr": "Les membres gagnent…" }`.
+  - An agent shows the entry for the shopper's locale, falling back to `default`, verbatim.
+  - Every entry must say the same thing.
+  - Agents pinned to v0.5 or earlier expect a string. A store serving them should keep the
+    string form, or publish the default as the string.
+
+## 2. The carriers
+
+The same object travels several ways, so every kind of agent finds it:
 
 **a. `/.well-known/bounty.json`** — the robots.txt of rewards. Host the object at this path on the store's domain. One fetch answers the question for any agent, on any platform.
 
@@ -141,6 +187,11 @@ On Shopify specifically, `/apps/bounty/bounty.json` is the conventional path, an
 | `bounty.status_url` | url | status.url |
 | `bounty.scope` | single_line_text_field | scope (v0.4): `store` or `selected` |
 | `bounty.api` | url | api |
+| `bounty.currency` | single_line_text_field | currency (v0.6) |
+| `bounty.eligibility` | json | eligibility (v0.6) |
+| `bounty.conditions` | json | conditions (v0.6) |
+| `bounty.valid_from` / `bounty.valid_until` | date_time | valid_from / valid_until (v0.6) |
+| `bounty.stacking` | json | stacking (v0.6) |
 | `bounty.rewards` | json | rewards (v0.5): the whole block, as JSON |
 | `bounty.updated_at` | date | updated_at |
 
@@ -167,6 +218,19 @@ qualifies (with `scope: "selected"` this is how an agent learns which products d
 ```
 
 **d. Catalog sentence** — for description fields that syndicate to AI channels today: the `earn.display` sentence plus the `api` URL, verbatim, nothing more.
+
+**e. Visible statement (v0.6 rule)**: the on-page statement, for agents that drive a browser
+and read the accessibility tree rather than the HTML. Head markup and JSON-LD have no text node,
+so these agents can't see them. When a store renders the statement, it MUST:
+- render `earn.display` **verbatim**, or the entry for the page's locale, else `default`;
+- put it inside an element carrying `data-bounty-display` and an `aria-label`, such as
+  `<section data-bounty-display aria-label="Rewards on this purchase">`, so it is a labeled
+  region a browser-driving agent can find by name;
+- place it **within the product's purchase region**, near the price and the add-to-cart
+  control, on product pages.
+
+It renders nothing when no object is published, the object is inactive, or it is outside its
+validity window. Integrations SHOULD render it by default and let the merchant turn it off.
 
 ## 3. Verification
 
@@ -219,6 +283,24 @@ roadmap commitment, not a description of today.
 Agents SHOULD prefer verified sources and treat `api` as authoritative over any
 embedded copy.
 
+### 3.2 `verification` (v0.6)
+
+An object an index or program publishes on a store's behalf MAY say how the publisher knows the
+store pays:
+
+| `method` | Means |
+|---|---|
+| `program_data` | The program's own settlement data shows the store paying shoppers |
+| `order_sample` | Test orders were placed and the bounty was paid out |
+| `attestation` | The store attested in writing |
+| `none` | Listed, not verified |
+
+- `method` is a closed enum, because an agent weighs the claim on it.
+- Every method except `none` requires `checked_at` (a date-time) and `by` (a name or URL).
+- Absent makes no claim.
+- `verification` describes the publisher's check. It is not a signature (§9) and doesn't
+  make a claim true.
+
 ## 4. Conformance for agents
 
 An agent conforms if it resolves the object in this order, stopping at the first hit:
@@ -233,6 +315,14 @@ If the object carries `rewards` (§7), an agent conforms only if it shows `rewar
 and computes nothing from it, and presents as available only perks whose `state` is `funded`.
 Where `rewards` is absent and `tokens` is present, it derives the same fields from the Token
 Profile (§7.4) rather than reporting that the program has no tiers or perks.
+
+v0.6 adds four more conformance rules:
+- **Validity:** an object before its `valid_from` or after its `valid_until` is **inactive**.
+- **Localized `earn.display`:** an agent shows the shopper's locale, else `default`, verbatim.
+- **Eligibility and conditions:** an agent shows `eligibility` and `conditions` notes when it
+  states the bounty, and never presents a limited bounty as open to anyone.
+- **Signatures:** an agent that checks signatures (§9) treats an **invalid** signature as a
+  hard stop. It uses nothing from the object and reports the store as unknown.
 
 If the object carries `scope: "selected"`, an agent conforms only if it checks the product page
 for a product-level declaration (§1.1) before telling a shopper that a particular product
@@ -438,6 +528,7 @@ governs it:
 - A program states a perk as `funded` only where it is live for members now.
 - An integration that reads a program from outside, rather than the program publishing itself,
   **omits a perk whose state it can't establish**. It never guesses one.
+- Since v0.6 a perk MAY carry `fulfills`: goal tags (§8).
 
 ### 7.4 Token programs: derive, don't copy
 
@@ -451,7 +542,7 @@ fields from the Token Profile:
 | `ladder.unit` | the token's `symbol` |
 | `ladder.note` | `status_ladder.note` |
 | `ladder.rungs[]` | `status_ladder.rungs[]`: `rung`, `label`, `threshold` (a rung's `unlocks` ids are not copied) |
-| `perks[]` | `unlocks[]`: `name`, `description`, `state`, and `sponsor` under the same rule |
+| `perks[]` | `unlocks[]`: `name`, `description`, `state`, `fulfills` (v0.6), and `sponsor` under the same rule |
 | `value` | No field maps to it. Use it only if the issuer publishes a sentence that meets §7.1 |
 | `earn.display` | stays in `earn`: the store object's own sentence |
 
@@ -465,3 +556,77 @@ When the store is the program, as with a points program run on the store's own l
 `rewards` is the program describing itself. It goes stale the same way `earn.display` does, when
 the program changes and the object isn't re-published. Integrations that compose it from the
 program's live data should re-read it whenever they re-publish `earn.display`.
+
+---
+
+## 8. Goal matching (v0.6)
+
+A shopper often has something specific in mind: concert tickets, a gym membership, help with
+trade school. A program's perks and a token's unlocks MAY carry **`fulfills`**: goal tags that
+say what each one serves.
+
+```json
+{ "name": "Gear library", "state": "funded", "fulfills": ["outdoor_gear"] }
+```
+
+- **Where:** on Token Profile unlocks (`unlocks[].fulfills`, Token Profile schema v1 alias), and
+  on `rewards.perks[]` for programs without tokens.
+- **Shape:** lower-case snake_case tags, any number per item, no duplicates.
+- **Vocabulary:** open. A program may use a tag no list has. The starter list, which programs
+  should reuse where it fits:
+
+| | | |
+|---|---|---|
+| `concert_tickets` | `live_events` | `gym_membership` |
+| `trade_school_tuition` | `college_tuition` | `classes` |
+| `travel` | `recovery_support` | `outdoor_gear` |
+| `youth_sports` | `childcare` | `groceries` |
+| `healthcare` | `transit` | `free_shipping` |
+
+**The rule for agents:**
+1. Match the shopper's goals to tags **locally**. A shopper's goals are never sent to a program
+   or index in order to match them.
+2. Present as available **only** items whose `state` is `funded`. A `committed` or `planned`
+   item that matches may be mentioned only as not yet available.
+3. A `planned` item never names a sponsor, as everywhere else in this spec.
+
+Tags are the program's claim about what an item serves. An agent shows the item's own name and
+description, not a sentence built from the tag.
+
+## 9. Signed objects (v0.6)
+
+A publisher MAY sign its objects so an agent can tell that an object is exactly what the origin
+published, unaltered by a cache, proxy or copy. Signing says who published the object. It does
+not make the claim true; that's what `verification` (§3.2) and the program behind it are for.
+
+**Keys.** The origin that serves the object publishes a JSON Web Key Set at
+`https://<that origin>/.well-known/bounty-keys.json`:
+
+```json
+{ "keys": [ { "kty": "OKP", "crv": "Ed25519", "x": "…", "kid": "2026-10", "use": "sig", "alg": "EdDSA" } ] }
+```
+
+Keys come only from the origin that served the object, never from a URL named inside a signature.
+
+**Signature.** The response carries a detached JWS (RFC 7515, Appendix F) in a header:
+
+```
+Bounty-Signature: <base64url(protected header)>..<base64url(signature)>
+```
+
+- **Protected header:** `{ "alg": "EdDSA", "kid": "…", "typ": "bounty+jws" }`.
+- **Signing input:** `base64url(protected header) + "." + base64url(body)`, where `body` is the
+  exact bytes of the response body, after content decoding.
+- **Algorithm:** v0.6 defines EdDSA with Ed25519 only.
+
+**Three outcomes:**
+
+| Outcome | When | What an agent does |
+|---|---|---|
+| `signed` | The signature verifies against a key with that `kid` at the object's origin | Uses the object, and may say it is signed by that origin |
+| `unsigned` | No `Bounty-Signature` header | Uses the object as before. Unsigned is the default, not a fault |
+| `invalid` | A header is present and anything fails: malformed, another `alg`, unknown `kid`, the key set unreachable, or a signature that doesn't verify | **Hard stop.** Uses nothing from the object and reports the store as unknown, saying the signature failed |
+
+A signature covers one response. The carriers that aren't HTTP responses (metafields, JSON-LD,
+the visible statement) aren't signed. An agent that needs a signed answer follows `api` or the
+well-known path.

@@ -66,6 +66,31 @@ mustReject.push(
   ['rewards: value over 200 characters', v05({ value: 'x'.repeat(201) })]
 );
 
+// v0.6. Closed where an agent decides on the value (verification.method),
+// open where programs differ (eligibility.who, conditions[].type, fulfills).
+const v06 = (extra) => ({ bounty_schema_version: '0.6', active: true, program: { name: 'x', url: 'https://x.test' }, earn: { display: 'y' }, updated_at: '2026-01-01', ...extra });
+mustReject.push(
+  ['v0.6: unknown verification method', v06({ verification: { method: 'vibes' } })],
+  ['v0.6: program_data verification without checked_at and by', v06({ verification: { method: 'program_data' } })],
+  ['v0.6: localized display without default', v06({ earn: { display: { fr: 'Les membres gagnent des points.' } } })],
+  ['v0.6: localized display with a non-locale key', v06({ earn: { display: { default: 'y', 'French!': 'z' } } })],
+  ['v0.6: localized sentence over 200 characters', v06({ earn: { display: { default: 'y', fr: 'x'.repeat(201) } } })],
+  ['v0.6: condition without a note', v06({ conditions: [{ type: 'min_order', value: 50 }] })],
+  ['v0.6: condition type with a space', v06({ conditions: [{ type: 'min order', note: 'On orders of $50 or more.' }] })],
+  ['v0.6: lower-case currency', v06({ currency: 'usd' })],
+  ['v0.6: valid_until that is not ISO', v06({ valid_until: 'Dec 31 2026' })],
+  ['v0.6: stacking without combinable', v06({ stacking: { note: 'Combines with nothing.' } })],
+  ['v0.6: eligibility without who', v06({ eligibility: { note: 'Members only.' } })],
+  ['v0.6: a goal tag in capitals', v06({ rewards: { perks: [{ name: 'Gym', state: 'funded', fulfills: ['Gym Membership'] }] } })]
+);
+const v06Accept = [
+  ['v0.6: an eligibility term no list has (open vocabulary)', v06({ eligibility: { who: 'alumni_association', note: 'For alumni.' } })],
+  ['v0.6: a condition type no list has, with no value', v06({ conditions: [{ type: 'weekday_only', note: 'Weekdays only.' }] })],
+  ['v0.6: verification none, nothing else', v06({ verification: { method: 'none' } })],
+  ['v0.6: valid_until as a date and as a date-time', v06({ valid_from: '2026-10-01', valid_until: '2026-12-31T23:59:59Z' })],
+  ['v0.6: localized display with a region subtag', v06({ earn: { display: { default: 'y', 'pt-br': 'z' } } })]
+];
+
 // And it must accept what it is for: a ladder of any length with any names,
 // a funded perk that names its sponsor, and a block with only a value.
 const mustAccept = [
@@ -73,7 +98,8 @@ const mustAccept = [
   ['rewards: funded perk with a sponsor', v05({ perks: [{ name: 'Partner night', state: 'funded', sponsor: 'Example Brand' }] })],
   ['rewards: committed perk, no description', v05({ perks: [{ name: 'Members dinner', state: 'committed' }] })],
   ['rewards: value only', v05({ value: '100 points = $5 off at checkout.' })],
-  ['rewards: empty block (nothing stated)', v05({})]
+  ['rewards: empty block (nothing stated)', v05({})],
+  ...v06Accept
 ];
 
 for (const [label, doc] of mustReject) {
@@ -96,12 +122,13 @@ for (const [label, doc] of mustAccept) {
 
 // Every 0.x version stays valid: v0.2 added a discovery order, v0.3 the
 // optional `tokens`, v0.4 the optional `scope` and `listed_by`, v0.5 the
-// optional `rewards`. Agents must
+// optional `rewards`, v0.6 eligibility, conditions, validity, currency,
+// stacking, verification, localized display and goal tags. Agents must
 // accept all of them, so the schema must too. The example set is deliberately
 // mixed across 0.1–0.5, so this is proven by the files above as well as
 // asserted here.
 const base = JSON.parse(readFileSync(join(dir, 'minimal.json'), 'utf8'));
-for (const version of ['0.1', '0.2', '0.3', '0.4', '0.5']) {
+for (const version of ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6']) {
   if (validate({ ...base, bounty_schema_version: version })) {
     console.log(`  PASS  accepts bounty_schema_version ${version}`);
   } else {
@@ -114,7 +141,7 @@ const versions = new Set(
   readdirSync(dir).filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')).bounty_schema_version)
 );
-if (['0.1', '0.2', '0.3', '0.4', '0.5'].every((v) => versions.has(v))) {
+if (['0.1', '0.2', '0.3', '0.4', '0.5', '0.6'].every((v) => versions.has(v))) {
   console.log('  PASS  example set covers all published versions');
 } else {
   failed++;
@@ -136,12 +163,25 @@ if (v03.bounty_schema_version === '0.3' && !('scope' in v03) && !('listed_by' in
 // `rewards`, and each must still validate unchanged.
 const preV05 = readdirSync(dir).filter((f) => f.endsWith('.json'))
   .map((f) => [f, JSON.parse(readFileSync(join(dir, f), 'utf8'))])
-  .filter(([, d]) => d.bounty_schema_version !== '0.5');
+  .filter(([, d]) => Number(d.bounty_schema_version.split('.')[1]) < 5);
 if (preV05.length && preV05.every(([, d]) => !('rewards' in d) && validate(d))) {
   console.log(`  PASS  ${preV05.length} pre-v0.5 examples without rewards still validate`);
 } else {
   failed++;
   console.log('  FAIL  a pre-v0.5 example carries rewards or no longer validates');
+}
+
+// And v0.6: no example published before it uses a v0.6 field, and each still
+// validates as published.
+const V06_FIELDS = ['currency', 'eligibility', 'conditions', 'valid_from', 'valid_until', 'stacking', 'verification'];
+const preV06 = readdirSync(dir).filter((f) => f.endsWith('.json'))
+  .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')))
+  .filter((d) => Number(d.bounty_schema_version.split('.')[1]) < 6);
+if (preV06.every((d) => !V06_FIELDS.some((k) => k in d) && typeof d.earn.display === 'string' && validate(d))) {
+  console.log(`  PASS  ${preV06.length} pre-v0.6 examples, none using a v0.6 field, still validate`);
+} else {
+  failed++;
+  console.log('  FAIL  a pre-v0.6 example uses a v0.6 field or no longer validates');
 }
 
 // ── v0.3: Token Profiles ────────────────────────────────────────────────────
@@ -199,6 +239,18 @@ if (validateToken(invented)) {
   console.log('  FAIL  rejected an invented symbol or non-default ladder — the roster has been hardcoded');
   for (const e of validateToken.errors) console.log(`          ${e.instancePath || '/'} ${e.message}`);
 }
+
+// Goal tags on a Token Profile unlock (v0.6): the tag vocabulary is open, the
+// shape is not.
+const goalBase = JSON.parse(readFileSync(join(tokenDir, 'goals-example.json'), 'utf8'));
+const badTag = structuredClone(goalBase);
+badTag.unlocks[0].fulfills = ['Outdoor Gear'];
+if (validateToken(badTag)) { failed++; console.log('  FAIL  token schema wrongly ACCEPTED: a goal tag in capitals'); }
+else console.log('  PASS  correctly rejects: a goal tag in capitals');
+const plannedSponsor = structuredClone(goalBase);
+plannedSponsor.unlocks[1].fulfills = ['youth_sports', 'travel'];
+if (validateToken(plannedSponsor)) console.log('  PASS  accepts several goal tags on one unlock');
+else { failed++; console.log('  FAIL  rejected several goal tags'); }
 
 const tokenMustReject = [
   ['missing symbol', { token_schema_version: '0.3', canonical_url: 'https://x.test', issuer: { name: 'x', url: 'https://x.test' }, updated_at: '2026-01-01' }],

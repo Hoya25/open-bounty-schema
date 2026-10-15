@@ -1,0 +1,31 @@
+{
+  "bounty_schema_version": "0.6",
+  "active": true,
+  "program": {
+    "name": "Exemple Maison Club",
+    "url": "https://maison.example.fr/club"
+  },
+  "earn": {
+    "display": {
+      "default": "Members earn 5 points per €1, redeemable at checkout.",
+      "fr": "Les membres gagnent 5 points par 1 €, utilisables au paiement.",
+      "de": "Mitglieder sammeln 5 Punkte pro 1 €, einlösbar an der Kasse."
+    },
+    "denomination": "points",
+    "type": "points"
+  },
+  "currency": "EUR",
+  "eligibility": { "who": "members", "join_url": "https://maison.example.fr/club/join" },
+  "conditions": [
+    { "type": "pending_period", "value": 14, "note": "Points are pending for 14 days after purchase." }
+  ],
+  "rewards": {
+    "value": "100 points = €5 off at checkout.",
+    "perks": [
+      { "name": "Free delivery", "state": "funded", "fulfills": ["free_shipping"] },
+      { "name": "Workshop seats", "description": "Places at partner craft workshops, in design.", "state": "planned", "fulfills": ["classes"] }
+    ]
+  },
+  "listed_by": "store",
+  "updated_at": "2026-10-15"
+}
