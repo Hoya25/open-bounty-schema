@@ -5,9 +5,15 @@
   "license": "CC0-1.0",
   "type": "module",
   "private": true,
+  "bin": {
+    "open-bounty-check": "tools/check/bin/open-bounty-check.js"
+  },
   "scripts": {
     "test": "node validate.mjs",
     "live-check": "node live-check.mjs"
+  },
+  "dependencies": {
+    "@cfworker/json-schema": "4.1.1"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
