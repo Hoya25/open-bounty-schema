@@ -76,6 +76,16 @@ derive it from its Token Profile. See [§7](SPEC.md#7-rewards-v05).
 
 See [CHANGELOG.md](CHANGELOG.md) and [SPEC §1.2, §2e, §3.2, §8, §9](SPEC.md).
 
+## Check a store
+
+```sh
+npx github:Hoya25/open-bounty-schema shop.example
+```
+
+This runs [open-bounty-check](tools/check/). It does the spec's discovery walk, validates against
+the live schema, verifies a signature when present, and reports each carrier and the `earn.display`
+sentence. It exits 0 only on a valid object.
+
 ## Declaring and settling
 
 The bounty object **declares**: buying here pays the shopper, and here's what they get. Paying

@@ -3,11 +3,17 @@
 Check any store's [Open Bounty Schema](https://github.com/Hoya25/open-bounty-schema) declaration,
 the way a conforming agent reads it.
 
+Run it straight from GitHub; nothing is published to the npm registry:
+
 ```sh
-npx open-bounty-check shop.example
-npx open-bounty-check shop.example --product https://shop.example/products/some-product
-npx open-bounty-check shop.example --json
+npx github:Hoya25/open-bounty-schema shop.example
+npx github:Hoya25/open-bounty-schema shop.example --product https://shop.example/products/some-product
+npx github:Hoya25/open-bounty-schema shop.example --json
 ```
+
+npm installs the repository and runs its `open-bounty-check` command, which is this package. To
+pin a version, add a commit: `npx github:Hoya25/open-bounty-schema#<commit> shop.example`. From
+a checkout, `node tools/check/bin/open-bounty-check.js shop.example` does the same.
 
 For each store it:
 

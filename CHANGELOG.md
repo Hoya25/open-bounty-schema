@@ -8,8 +8,8 @@ every 0.x. The stable schema alias `https://api.nctr.live/schema/bounty/v1.json`
 
 - **open-bounty-check 0.6.0** (`tools/check/`, 2026-10-15): a conformance checker for any store. It
   runs the §4 discovery walk, validates against the live schema, verifies §9 signatures, and checks
-  the product-page carriers with `--product`. Exits 0 only on a valid object. Not yet published to
-  npm.
+  the product-page carriers with `--product`. Exits 0 only on a valid object. Run it from GitHub
+  with `npx github:Hoya25/open-bounty-schema <domain>`; it isn't on the npm registry.
 
 ## 0.6 (2026-10-15)
 
