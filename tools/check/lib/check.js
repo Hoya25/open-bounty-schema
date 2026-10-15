@@ -181,6 +181,9 @@ async function loadSchema(fetchFn, url, userAgent) {
   return schema;
 }
 
+/** Forget the cached schema (tests, or after a schema change). */
+export function resetSchemaMemo() { schemaMemo = { url: null, at: 0, schema: null }; }
+
 /** Schema errors plus the 0.x rule. Empty means valid. */
 export function validate(obj, schema) {
   const v = new Validator(schema, '2020-12', false);
@@ -239,7 +242,8 @@ export async function check(domainInput, options = {}) {
   if (!domain) return { ...base, status: 'unknown', ok: false, reason: 'not a domain', carriers: {} };
 
   const schema = await loadSchema(fetchFn, schemaUrl, userAgent);
-  if (!schema) return { ...base, status: 'unknown', ok: false, reason: `the schema at ${schemaUrl} could not be fetched, so nothing could be validated`, carriers: {} };
+  // Not a fact about the store: a caller (the hosted /check) shouldn't cache it.
+  if (!schema) return { ...base, status: 'unknown', ok: false, schema_unavailable: true, reason: `the schema at ${schemaUrl} could not be fetched, so nothing could be validated`, carriers: {} };
 
   const carriers = {};
   // §4 step 1
