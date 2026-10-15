@@ -163,9 +163,14 @@
               "minLength": 1,
               "description": "What `threshold` counts, in the program's own unit: an ISO 4217 code when basis is `spend` (\"USD\"), otherwise the unit's name (\"points\", \"NCTR\"). Without it, an agent must not state a threshold as an amount of money."
             },
+            "note": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "What the ladder measures and over what period, in words (\"Spend is counted over the last 12 months.\"). As in the Token Profile's status_ladder."
+            },
             "rungs": {
               "type": "array",
-              "description": "ANY length: no minItems and no enum of rung names. The first rung is the entry tier.",
+              "description": "ANY length: no minItems and no enum of rung names. The first rung is the entry tier when its threshold is 0; when it is above 0, members below it hold no rung yet.",
               "items": {
                 "type": "object",
                 "required": [

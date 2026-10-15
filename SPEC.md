@@ -389,7 +389,8 @@ still valid, and **absent means not stated, never "none"**.
 | `value` | ONE plain sentence, at most 200 characters, stating what the reward unit is worth |
 | `ladder.basis` | `earned` \| `held` \| `spend`: what a member climbs by |
 | `ladder.unit` | What `threshold` counts, in the program's own unit: an ISO 4217 code for `spend`, otherwise the unit's name |
-| `ladder.rungs[]` | `{ rung, label?, threshold, note? }`, in order; the first rung is the entry tier |
+| `ladder.note` | What the ladder measures and over what period, in words |
+| `ladder.rungs[]` | `{ rung, label?, threshold, note? }`, in order. The first rung is the entry tier when its threshold is 0; when it's above 0, members below it hold no rung yet |
 | `perks[]` | `{ name, description?, state, sponsor? }`, where `state` is `planned` \| `committed` \| `funded` |
 | `redeem_url` | Where a member spends the reward |
 | `terms_url` | The reward's own terms, when they differ from the object's `terms_url` |
@@ -448,6 +449,7 @@ fields from the Token Profile:
 |---|---|
 | `ladder.basis` | `status_ladder.basis` |
 | `ladder.unit` | the token's `symbol` |
+| `ladder.note` | `status_ladder.note` |
 | `ladder.rungs[]` | `status_ladder.rungs[]`: `rung`, `label`, `threshold` (a rung's `unlocks` ids are not copied) |
 | `perks[]` | `unlocks[]`: `name`, `description`, `state`, and `sponsor` under the same rule |
 | `value` | No field maps to it. Use it only if the issuer publishes a sentence that meets §7.1 |

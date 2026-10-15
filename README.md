@@ -43,6 +43,24 @@ Agents resolve the well-known path first and fall back to the link element, so b
 
 Three other carriers — Shopify metafields, JSON-LD inside an existing `Offer`, and a plain catalog sentence — are described in [the spec](SPEC.md), so the same object reaches agents that never fetch a file at all.
 
+## What the reward is worth (v0.5)
+
+The optional `rewards` block says what a program's unit is worth, how members climb, and what
+membership unlocks, so an agent can put a points program beside a token program:
+
+```json
+"rewards": {
+  "value": "100 Points = $5 off at checkout.",
+  "ladder": { "basis": "spend", "unit": "USD",
+              "rungs": [{ "rung": "Starter", "threshold": 0 }, { "rung": "Pro", "threshold": 250 }] },
+  "perks": [{ "name": "Free standard shipping", "state": "funded" }]
+}
+```
+
+`value` is a sentence, not a rate. Each perk carries the same three states as a Token Profile
+unlock, and only `funded` is available. A token program can leave the block out and let agents
+derive it from its Token Profile. See [§7](SPEC.md#7-rewards-v05).
+
 ## Declaring and settling
 
 The bounty object **declares**: buying here pays the shopper, and here's what they get. Paying
@@ -62,11 +80,11 @@ the contract doesn't need them.
 
 | Path | What it is |
 |---|---|
-| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.4**. |
+| [`SPEC.md`](SPEC.md) | The specification. Canonical. Currently **v0.5**. |
 | [`ADOPTERS.md`](ADOPTERS.md) | For programs, stores, app builders and agent builders: declaring vs settling, pinning, product-level scope, which agents read which carrier, the programs and loyalty integrations, and how to verify a store. |
 | [`SETTLEMENT.md`](SETTLEMENT.md) | The settlement contract (**v0.1**, draft): how a program credits a shopper for an order. The order event, the response, the states (received → pending → confirmed → reversed), and the refund hold. Schema: [`schema/settlement-event.schema.json`](schema/settlement-event.schema.json). |
 | [`schema/bounty.schema.json`](schema/bounty.schema.json) | JSON Schema (draft 2020-12). Normative for validation. Also served at **`https://api.nctr.live/schema/bounty/v1.json`** (stable alias) and **`/v0.2.json`** (pinned) — implementers should fetch those rather than a raw GitHub URL. |
-| [`examples/`](examples/) | Valid objects: a token program, two cash programs, a gift with purchase, a pre-launch campaign tier, the minimum required fields, and an inactive store. |
+| [`examples/`](examples/) | Valid objects: a token program, three cash programs (one stating only what its reward is worth), a gift with purchase, a pre-launch campaign tier, a tiered points program with a full `rewards` block, an alliance store that leaves `rewards` to its Token Profile, the minimum required fields, and an inactive store. |
 | [`validate.mjs`](validate.mjs) | Validates every example, and asserts the schema **rejects** malformed objects. `npm install && npm test` |
 
 ## Reference implementation
