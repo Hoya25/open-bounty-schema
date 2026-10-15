@@ -1,0 +1,91 @@
+{
+  "$comment": "Bounty connector definition. Muse publishes no file format for connectors; this holds what its connector guidelines and submission form ask for (endpoint, authentication, scopes, credentials, tool documentation with each tool classified), in one place. Regenerate with build-connector.mjs.",
+  "name": "Bounty",
+  "summary": "Tells a shopper whether buying at a store pays them a reward, from the store's own published declaration.",
+  "description": "Bounty reads any store's Open Bounty Schema declaration: the small public object a store publishes at /.well-known/bounty.json, or points to with <link rel=\"bounty\">, saying what a purchase pays the shopper (points, credit, tokens or cash). It returns the store's own sentence to show verbatim, the resolved object, and whether it is signed. A store that publishes nothing is reported as unknown, never as \"no\".",
+  "mcp": {
+    "url": "https://api.nctr.live/mcp/bounty",
+    "transport": "streamable-http",
+    "protocol_version": "2025-06-18",
+    "self_host": "https://github.com/Hoya25/open-bounty-schema/tree/main/connectors/muse/server"
+  },
+  "api": {
+    "openapi": "https://github.com/Hoya25/open-bounty-schema/blob/main/connectors/muse/openapi.json"
+  },
+  "authentication": {
+    "type": "none",
+    "scopes": [],
+    "credentials": "none",
+    "environment": "production"
+  },
+  "data": {
+    "reads": "A store's own public declaration (/.well-known/bounty.json or its rel=\"bounty\" link target), its home page head, and, if a product URL is given, that product page.",
+    "writes": "Nothing.",
+    "personal_data": "None. The input is a store domain; the output is that store's public declaration.",
+    "retention": "Results are cached for 5 minutes per store. Nothing about the person asking is stored."
+  },
+  "tools": [
+    {
+      "name": "get_bounty",
+      "title": "Get a store's bounty",
+      "description": "Read whether buying at a store pays the shopper a reward, from the store's own published Open Bounty Schema declaration (its /.well-known/bounty.json, or the object its <link rel=\"bounty\"> points to). Returns status (valid, invalid or unknown), the earn.display sentence to show verbatim, the resolved object, where it was found, and whether it is signed. \"unknown\" means the store publishes nothing; it does not mean purchases earn nothing. Read-only: it changes nothing anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "The store's domain, e.g. shop.example"
+          },
+          "product": {
+            "type": "string",
+            "description": "Optional: an https product page URL on that domain, to check the product-page carriers too"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "invalid",
+              "unknown"
+            ]
+          },
+          "earn_display": {
+            "type": "string"
+          },
+          "object": {
+            "type": "object"
+          },
+          "found_at": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "object"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "annotations": {
+        "title": "Get a store's bounty",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "classification": "read"
+    }
+  ],
+  "license": "CC0-1.0"
+}

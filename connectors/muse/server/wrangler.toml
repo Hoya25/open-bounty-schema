@@ -1,0 +1,7 @@
+# Bounty MCP server, self-hosted. Deploy from a clone of open-bounty-schema:
+#   npm install            (at the repository root: installs the checker's one dependency)
+#   cd connectors/muse/server && npx wrangler deploy
+# The endpoint is then https://<your worker>/mcp.
+name = "bounty-mcp"
+main = "src/index.js"
+compatibility_date = "2026-10-01"

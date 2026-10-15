@@ -1,0 +1,48 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bounty",
+    "version": "0.6.0",
+    "description": "Read whether buying at a store pays the shopper a reward, from the store's own published Open Bounty Schema declaration. For agent platforms that build a connector from API documentation. The same action is available as an MCP tool at https://api.nctr.live/mcp/bounty.",
+    "license": { "name": "CC0-1.0", "identifier": "CC0-1.0" }
+  },
+  "servers": [{ "url": "https://api.nctr.live" }],
+  "paths": {
+    "/check": {
+      "get": {
+        "operationId": "get_bounty",
+        "summary": "Get a store's bounty",
+        "description": "Runs the discovery walk against the store's own domain (/.well-known/bounty.json, then <link rel=\"bounty\">), validates the object against the live schema, verifies a signature when present, and returns the earn.display sentence to show verbatim and the resolved object. \"unknown\" means the store publishes nothing; it does not mean purchases earn nothing. Read-only.",
+        "x-classification": "read",
+        "parameters": [
+          { "name": "domain", "in": "query", "required": true, "description": "The store's domain, e.g. shop.example", "schema": { "type": "string" } },
+          { "name": "product", "in": "query", "required": false, "description": "An https product page URL on that domain, to check the product-page carriers too", "schema": { "type": "string", "format": "uri" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The check result. status is valid, invalid or unknown.",
+            "content": { "application/json": { "schema": {
+              "type": "object",
+              "required": ["domain", "status", "ok"],
+              "properties": {
+                "domain": { "type": "string" },
+                "status": { "type": "string", "enum": ["valid", "invalid", "unknown"] },
+                "ok": { "type": "boolean" },
+                "earn_display": { "type": "string", "description": "The store's sentence, to show verbatim" },
+                "object": { "type": "object", "description": "The resolved Open Bounty Schema object" },
+                "found_at": { "type": "string", "enum": ["well-known", "link"] },
+                "signature": { "type": "object", "properties": { "outcome": { "type": "string", "enum": ["signed", "unsigned", "invalid"] } } },
+                "active": { "type": "boolean" },
+                "reason": { "type": "string" },
+                "carriers": { "type": "object" }
+              }
+            } } }
+          },
+          "400": { "description": "Not a store's public hostname, or a product URL on another domain" },
+          "429": { "description": "Rate limited; retry after a minute" },
+          "503": { "description": "The schema couldn't be loaded; nothing was checked" }
+        }
+      }
+    }
+  }
+}

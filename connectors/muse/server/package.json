@@ -1,0 +1,12 @@
+{
+  "name": "bounty-mcp-server",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Bounty: a one-tool MCP server (get_bounty) for agent connectors such as Muse. Self-hostable template.",
+  "license": "CC0-1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "deploy": "wrangler deploy"
+  }
+}

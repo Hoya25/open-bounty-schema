@@ -113,6 +113,10 @@ https://api.nctr.live/badge/shop.example.svg
 <img src="https://api.nctr.live/badge/shop.example.svg" alt="Bounty status">
 ```
 
+**In an agent:** [Bounty for Muse](connectors/muse/) is a connector with one read-only action,
+`get_bounty(domain)`, for Meta's Muse or any MCP client. Its hosted endpoint is
+`https://api.nctr.live/mcp/bounty`, and you can host it yourself.
+
 ## Declaring and settling
 
 The bounty object **declares**: buying here pays the shopper, and here's what they get. Paying

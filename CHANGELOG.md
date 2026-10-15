@@ -13,6 +13,11 @@ every 0.x. The stable schema alias `https://api.nctr.live/schema/bounty/v1.json`
 - **Hosted checker** (2026-10-15): `GET https://api.nctr.live/check?domain=<domain>` returns the same
   result as JSON, cached 5 minutes and rate-limited per address. `GET /badge/<domain>.svg` shows
   "Bounty: verified" (green) or "Bounty: unknown" (grey), never "no".
+- **Bounty for Muse connector template** (`connectors/muse/`, 2026-10-15): one read-only action,
+  `get_bounty(domain)`, for Meta's Muse or any MCP client. It reads any store's own declaration
+  and returns the resolved object and its `earn.display` sentence. It includes `connector.json`
+  (generated from the server code), `openapi.json`, a self-hostable MCP server, and a publishing
+  README. A hosted instance is at `https://api.nctr.live/mcp/bounty`.
 
 ## 0.6 (2026-10-15)
 
