@@ -181,7 +181,7 @@ and publish nothing.
 | **Yotpo Loyalty & Referrals** | the loyalty loader on the storefront: the store-wide purchase campaign, tiers, redemptions | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **LoyaltyLion** | the LoyaltyLion SDK's start script (whether the program is on) and site configuration | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce)\* |
 | **Okendo Loyalty** | the loyalty settings block Okendo renders into the storefront, and the program's public storefront endpoints | Bounty app for Shopify (not yet listed in the App Store). Okendo runs only on Shopify. |
-| **Klaviyo welcome offer** | the coupon block in the store's live Klaviyo signup forms, then that discount's own fields in Shopify | Bounty app for Shopify (not yet listed in the App Store). The sentence reads *"New email subscribers get 15% off one order …"* |
+| **Klaviyo welcome offer** | the coupon block in the store's live Klaviyo signup forms, then that discount's own fields (a Shopify discount, or a WooCommerce coupon) | Bounty app for Shopify (not yet listed in the App Store); [Open Bounty for WooCommerce](https://github.com/Hoya25/bounty-woocommerce) 1.6.0 and later. The sentence reads *"New email subscribers get 15% off one order …"* |
 
 All four also compose the v0.5 **`rewards`** block from the same live data:
 - **value:** from a redemption rule with a stated worth (money off, percent off, store credit).
@@ -200,7 +200,7 @@ They also publish the v0.6 fields the program states:
 | Yotpo | members, with the store's registration URL | minimum spend, reward delay | campaign end → `valid_until` |
 | LoyaltyLion | members, with the program's sign-up URL | points expire after a period without activity | — |
 | Okendo | members, with the loyalty page | points pending for N days | — |
-| Klaviyo | new_subscribers | minimum order or quantity, once per customer, subscription orders only, end date | `valid_from`, `valid_until`, `stacking` from the discount's combines-with settings | Free products and free shipping state no worth, so a program that
+| Klaviyo | new_subscribers | minimum order or quantity, once per customer, subscription orders only, end date | `valid_from`, `valid_until`; `stacking` from the Shopify discount's combines-with settings or the WooCommerce coupon's "Individual use only" | Free products and free shipping state no worth, so a program that
 redeems only for those publishes no `value`, and therefore no block.
 
 \* Smile.io doesn't support WooCommerce. Yotpo doesn't support new WooCommerce accounts.
