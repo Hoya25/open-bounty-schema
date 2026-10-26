@@ -1,0 +1,54 @@
+{
+  "bounty_schema_version": "0.5",
+  "active": true,
+  "program": {
+    "name": "Example Athletics Loyalty",
+    "url": "https://bounty-demo.pages.dev/#loyalty"
+  },
+  "earn": {
+    "display": "Members earn 1 Point per dollar, redeemable at checkout.",
+    "denomination": "Points",
+    "type": "points"
+  },
+  "rewards": {
+    "value": "100 Points = $5 off at checkout.",
+    "ladder": {
+      "basis": "spend",
+      "unit": "USD",
+      "rungs": [
+        {
+          "rung": "Starter",
+          "threshold": 0,
+          "note": "Where every member starts."
+        },
+        {
+          "rung": "Pro",
+          "threshold": 250,
+          "note": "Earns more per dollar than Starter."
+        }
+      ]
+    },
+    "perks": [
+      {
+        "name": "Free standard shipping",
+        "description": "On orders of $75 or more.",
+        "state": "funded"
+      },
+      {
+        "name": "Early access to major sale events",
+        "state": "funded"
+      },
+      {
+        "name": "Partner benefits",
+        "description": "Discounts from partner brands, in design.",
+        "state": "planned",
+        "sponsor": null
+      }
+    ],
+    "redeem_url": "https://bounty-demo.pages.dev/#redeem"
+  },
+  "scope": "store",
+  "listed_by": "store",
+  "terms_url": "https://bounty-demo.pages.dev/#terms",
+  "updated_at": "2026-10-15"
+}

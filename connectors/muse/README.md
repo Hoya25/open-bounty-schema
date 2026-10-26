@@ -12,9 +12,15 @@ It has one action, **`get_bounty(domain)`**, and it is read-only. The action:
 **Any store, any program.** The connector reads what a store publishes itself; it isn't a lookup in
 an index. A store that publishes nothing comes back as `unknown`, never "no".
 
+The hosted instance also has a second read-only action, **`search_stores(query)`**: up to 10
+stores from the Bounty index of 6,000+ stores where a purchase earns. The index is an open registry
+any store can enter by publishing a declaration: a store whose own declaration checks valid is
+added, beside the NCTR Alliance listings, and every result's `listed_by` says who published it. The
+self-host template below serves `get_bounty` only.
+
 | File | What it is |
 |---|---|
-| [`connector.json`](connector.json) | The connector definition: endpoint, authentication (none), data use, and the one tool with its description, input and output schemas, annotations, and classification (read). Generated from the server code by `build-connector.mjs`, so the two can't drift |
+| [`connector.json`](connector.json) | The connector definition: endpoint, authentication (none), data use, and both tools (`get_bounty`, `search_stores`) with their descriptions, input and output schemas, annotations, and classification (read). Generated from the hosted connector's `tools/list` by `build-connector.mjs`, so the two can't drift |
 | [`openapi.json`](openapi.json) | The same action as an HTTP API (`GET /check?domain=`), for platforms that build a connector from API documentation |
 | [`server/`](server/) | The MCP server (Streamable HTTP), as a template you can host yourself. It runs on Cloudflare Workers, or anywhere with `fetch` and WebCrypto |
 

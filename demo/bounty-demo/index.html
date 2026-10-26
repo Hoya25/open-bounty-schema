@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Example Athletics · Demo store for the Open Bounty standard</title>
+<meta name="description" content="A fictional demo store that publishes an Open Bounty Schema declaration. Nothing is for sale.">
+<meta name="robots" content="noindex">
+<link rel="bounty" type="application/json" href="/.well-known/bounty.json">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "OnlineStore",
+      "name": "Example Athletics (demo store)",
+      "url": "https://bounty-demo.pages.dev/",
+      "description": "A fictional demo store for the Open Bounty standard. Nothing is for sale."
+    },
+    {
+      "@type": "Product",
+      "name": "Sample Training Tee (demo, not for sale)",
+      "description": "A placeholder product that shows where a store states its rewards. It cannot be bought.",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/Discontinued",
+        "additionalProperty": {
+          "@type": "PropertyValue",
+          "propertyID": "bounty",
+          "name": "Example Athletics Loyalty",
+          "value": "Members earn 1 Point per dollar, redeemable at checkout.",
+          "url": "https://bounty-demo.pages.dev/.well-known/bounty.json"
+        }
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root { --bg: #f6f5f2; --card: #ffffff; --ink: #1b1b1b; --muted: #5e5b55; --rule: #e3dfd6; --accent: #1f5f8b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .demo { background: var(--ink); color: #fff; text-align: center; padding: 10px 16px; font-size: 14px; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 72px; }
+  h1 { font-size: 32px; margin: 0 0 4px; }
+  h2 { font-size: 20px; margin: 36px 0 8px; }
+  .lede { color: var(--muted); margin: 0 0 24px; }
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 20px; }
+  .product { display: grid; gap: 8px; }
+  .price { color: var(--muted); }
+  .rewards { border-left: 3px solid var(--accent); padding: 8px 12px; background: #eef4f8; border-radius: 4px; }
+  .rewards strong { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); }
+  button[disabled] { justify-self: start; padding: 10px 16px; border-radius: 6px; border: 1px solid var(--rule); background: #ececec; color: var(--muted); font: inherit; }
+  ul { padding-left: 20px; }
+  code { font-size: 14px; }
+  footer { color: var(--muted); font-size: 14px; margin-top: 48px; border-top: 1px solid var(--rule); padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="demo">Demo store for the Open Bounty standard. Example Athletics is fictional, and nothing here is for sale.</p>
+<main>
+  <h1>Example Athletics</h1>
+  <p class="lede">A fictional sportswear store that publishes what a purchase earns in the
+  <a href="https://github.com/Hoya25/open-bounty-schema">Open Bounty Schema</a>, the open-source
+  standard for rewards declarations.</p>
+
+  <div class="card product">
+    <h2 style="margin-top:0">Sample Training Tee (demo, not for sale)</h2>
+    <p class="price">Not for sale: this placeholder shows where a store states its rewards.</p>
+    <section class="rewards" data-bounty-display aria-label="Rewards on this purchase"><strong>Rewards on this purchase</strong>Members earn 1 Point per dollar, redeemable at checkout.</section>
+    <button type="button" disabled>Not for sale</button>
+  </div>
+
+  <h2 id="loyalty">Example Athletics Loyalty</h2>
+  <p>Members earn 1 Point per dollar, redeemable at checkout. 100 Points = $5 off at checkout.</p>
+  <ul>
+    <li><strong>Starter</strong>: where every member starts.</li>
+    <li><strong>Pro</strong>: from $250 of spend, earns more per dollar than Starter.</li>
+    <li>Free standard shipping on orders of $75 or more, and early access to major sale events.</li>
+  </ul>
+  <p id="redeem">Points are redeemed at checkout.</p>
+
+  <h2 id="terms">Terms</h2>
+  <p>Example Athletics is a demonstration. There is no real program, no account to join and no
+  purchase to make.</p>
+
+  <h2>Where the declaration is</h2>
+  <ul>
+    <li><a href="/.well-known/bounty.json"><code>/.well-known/bounty.json</code></a>, the store's own object</li>
+    <li><code>&lt;link rel="bounty"&gt;</code> in this page's head, pointing to the same object</li>
+    <li>JSON-LD: a <code>bounty</code> <code>PropertyValue</code> in the sample product's <code>Offer</code></li>
+    <li>The labeled "Rewards on this purchase" statement above</li>
+  </ul>
+
+  <footer>Demo store for the Open Bounty standard ·
+  <a href="https://github.com/Hoya25/open-bounty-schema">Open Bounty Schema</a></footer>
+</main>
+</body>
+</html>
