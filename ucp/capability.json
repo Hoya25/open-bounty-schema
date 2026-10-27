@@ -1,0 +1,16 @@
+{
+  "live.nctr.bounty": [
+    {
+      "version": "2026-09-10",
+      "extends": "dev.ucp.shopping.catalog.search",
+      "spec": "https://api.nctr.live/schema/ucp/bounty/spec",
+      "schema": "https://api.nctr.live/schema/ucp/bounty/2026-09-10.json"
+    },
+    {
+      "version": "2026-09-10",
+      "extends": "dev.ucp.shopping.catalog.lookup",
+      "spec": "https://api.nctr.live/schema/ucp/bounty/spec",
+      "schema": "https://api.nctr.live/schema/ucp/bounty/2026-09-10.json"
+    }
+  ]
+}
