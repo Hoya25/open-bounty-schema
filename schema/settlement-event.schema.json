@@ -36,6 +36,15 @@
       "type": "string",
       "minLength": 1
     },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "human",
+        "agentic",
+        "unknown"
+      ],
+      "description": "How the order was placed. Absent means unknown. Senders SHOULD set agentic for orders an agent placed on the shopper's behalf."
+    },
     "store_domain": {
       "type": "string",
       "description": "Primary domain, no scheme.",

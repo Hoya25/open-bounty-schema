@@ -59,10 +59,15 @@ The sender POSTs one JSON object per event to the program's settlement endpoint,
 | `line_items` | no | `id`, `quantity`, `amount` (decimal string). Programs that credit per product, or exclude some (for example gift cards), need them. Programs that credit the order total MAY ignore them. |
 | `shopper` | yes | `id` plus `id_type`, **as the program defines them**: a member ID, a hashed email, an account token. The program states which `id_type` values it accepts (§7). The sender MUST NOT invent an identity the program didn't issue or agree to. |
 | `occurred_at` | yes | When it happened at the store (paid, refunded, cancelled), as an ISO 8601 timestamp with zone. Not when it was sent. |
+| `channel` | no | How the order was placed: `human`, `agentic`, or `unknown`. Senders SHOULD set `agentic` when an agent placed the order on the shopper's behalf. Absent means `unknown`. |
 | `refers_to` | for refunds and cancellations | The `idempotency_key` of the `order.paid` event being reduced or reversed. |
 
 Unknown fields MUST be ignored by the program, so a sender can carry its own context without
 breaking anyone.
+
+`channel` is the one field a program is expected to act on for attribution: it separates orders an
+agent placed on the shopper's behalf from orders a human placed. It matches the `channel: agentic`
+convention platforms already use in their order metadata.
 
 The machine-readable schema is [`schema/settlement-event.schema.json`](schema/settlement-event.schema.json).
 
