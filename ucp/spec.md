@@ -36,7 +36,7 @@ Catalog only. Cart and checkout are where a member is known, and there
 ## Shape
 
 A `bounty` property is added to the extended responses. Its value is an Open
-Bounty Schema v0.5 object — the mapping is the identity mapping, field for field,
+Bounty Schema v0.6 object — the mapping is the identity mapping, field for field,
 and a conformance test asserts deep equality against the published schema.
 
 Required: `bounty_schema_version`, `active`, `program`, `earn`, `updated_at`.
