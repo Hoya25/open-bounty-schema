@@ -14,7 +14,7 @@ Backing implementation, live since 2026-09-10:
 | Namespace | `live.nctr.bounty` |
 | Extends | `dev.ucp.shopping.catalog.search`, `dev.ucp.shopping.catalog.lookup` |
 | UCP version pinned | 2026-08-25 |
-| Drift test | `test/ucp-extension.test.mjs` in `nctr-loyalty-layer` — asserts 1:1 with published OBS v0.3 by deep equality |
+| Drift test | `test/ucp-extension.test.mjs` in `nctr-loyalty-layer` — asserts 1:1 with published OBS v0.6 by deep equality |
 
 ---
 
@@ -87,7 +87,7 @@ live, not hypothetical:
 - Schema: `https://api.nctr.live/schema/ucp/bounty/latest.json` (`live.nctr.bounty`, under our own
   namespace — we are not asking `dev.ucp.*` to adopt anything to make it work today)
 - Spec: `https://api.nctr.live/schema/ucp/bounty/spec`
-- It maps one-to-one onto the Open Bounty Schema v0.3, and a conformance test asserts that by deep
+- It maps one-to-one onto the Open Bounty Schema v0.6, and a conformance test asserts that by deep
   equality against the published document rather than by inspection.
 
 The underlying schema is **CC0-1.0, no owner and no gatekeeper**

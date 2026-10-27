@@ -3,7 +3,7 @@
   "$id": "https://api.nctr.live/schema/ucp/bounty/2026-09-10.json",
   "name": "live.nctr.bounty",
   "title": "Open Bounty Schema Extension",
-  "description": "Adds a pre-identity, store-level bounty declaration to UCP catalog responses: does buying here pay the shopper, and what does the shopper get? Complements dev.ucp.common.loyalty, which describes an identified member's standing and forecast; this answers the earlier question an agent must resolve for an anonymous shopper choosing between stores. Maps one-to-one onto Open Bounty Schema v0.5 (CC0-1.0).",
+  "description": "Adds a pre-identity, store-level bounty declaration to UCP catalog responses: does buying here pay the shopper, and what does the shopper get? Complements dev.ucp.common.loyalty, which describes an identified member's standing and forecast; this answers the earlier question an agent must resolve for an anonymous shopper choosing between stores. Maps one-to-one onto Open Bounty Schema v0.6 (CC0-1.0).",
   "version": "2026-09-10",
   "type": "object",
   "$defs": {

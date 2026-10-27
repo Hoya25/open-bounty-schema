@@ -44,7 +44,7 @@ Required: `bounty_schema_version`, `active`, `program`, `earn`, `updated_at`.
 ```json
 {
   "bounty": {
-    "bounty_schema_version": "0.3",
+    "bounty_schema_version": "0.6",
     "active": true,
     "program": { "name": "NCTR Alliance", "url": "https://themall.nctr.live" },
     "earn": {
